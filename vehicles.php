@@ -1,6 +1,7 @@
 <?php
 require_once 'auth_check.php';
 require_once 'dbConnect.php';
+require_once 'vehicle_options.php';
 
 $error = '';
 
@@ -43,38 +44,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_vehicle'])) {
     $plateNumber = strtoupper(trim($_POST['plate_number'] ?? ''));
     $make        = trim($_POST['make'] ?? '');
     $model       = trim($_POST['model'] ?? '');
+    $vehicleType = trim($_POST['vehicle_type'] ?? '');
     $year        = !empty($_POST['year']) ? (int)$_POST['year'] : null;
 
-    if ($customerId > 0 && !empty($plateNumber) && !empty($make) && !empty($model)) {
+    if ($customerId > 0 && !empty($plateNumber) && !empty($make) && !empty($model) && !empty($vehicleType)) {
         $checkStmt = $pdo->prepare("SELECT VehicleID FROM Vehicle WHERE PlateNumber = ?");
         $checkStmt->execute([$plateNumber]);
 
         if ($checkStmt->fetch()) {
             $error = "This plate number ($plateNumber) is already registered in the system.";
         } else {
-            $insertStmt = $pdo->prepare("INSERT INTO Vehicle (CustomerID, PlateNumber, Make, Model, Year) VALUES (?, ?, ?, ?, ?)");
-            $insertStmt->execute([$customerId, $plateNumber, $make, $model, $year]);
+            $insertStmt = $pdo->prepare("INSERT INTO Vehicle (CustomerID, PlateNumber, Make, Model, VehicleType, Year) VALUES (?, ?, ?, ?, ?, ?)");
+            $insertStmt->execute([$customerId, $plateNumber, $make, $model, $vehicleType, $year]);
             header("Location: vehicles.php?msg=added");
             exit();
         }
     } else {
-        $error = "Customer, Plate Number, Make, and Model are required.";
+        $error = "Customer, Plate Number, Brand, Model, and Vehicle Type are required.";
     }
 }
 
 $search = trim($_GET['search'] ?? '');
 if ($search !== '') {
-    $sql = "SELECT v.VehicleID, v.PlateNumber, v.Make, v.Model, v.Year, c.FullName, c.Phone
+    $sql = "SELECT v.VehicleID, v.PlateNumber, v.Make, v.Model, v.VehicleType, v.Year, c.FullName, c.Phone
             FROM Vehicle v
             JOIN Customer c ON v.CustomerID = c.CustomerID         
-            WHERE v.PlateNumber LIKE ? OR v.Make LIKE ? OR v.Model LIKE ? OR c.FullName LIKE ?
+            WHERE v.PlateNumber LIKE ? OR v.Make LIKE ? OR v.Model LIKE ? OR v.VehicleType LIKE ? OR c.FullName LIKE ?
             ORDER BY v.VehicleID DESC";
     $stmt = $pdo->prepare($sql);
     $searchTerm = "%$search%";
-    $stmt->execute([$searchTerm, $searchTerm, $searchTerm, $searchTerm]);
+    $stmt->execute([$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm]);
     $vehicles = $stmt->fetchAll();
 } else {
-    $sql = "SELECT v.VehicleID, v.PlateNumber, v.Make, v.Model, v.Year, c.FullName, c.Phone
+    $sql = "SELECT v.VehicleID, v.PlateNumber, v.Make, v.Model, v.VehicleType, v.Year, c.FullName, c.Phone
             FROM Vehicle v
             JOIN Customer c ON v.CustomerID = c.CustomerID
             ORDER BY v.VehicleID DESC";

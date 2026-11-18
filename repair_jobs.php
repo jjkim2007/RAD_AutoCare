@@ -5,7 +5,7 @@ require_once 'dbConnect.php';
 $filter = trim($_GET['status'] ?? 'All');
 
 $sql = "SELECT r.JobID, r.Status, r.Description,
-               v.Make, v.Model, v.PlateNumber,
+               v.Make, v.Model, v.VehicleType, v.PlateNumber,
                s.Name AS MechanicName,
                inv.InvoiceID
         FROM RepairJob r

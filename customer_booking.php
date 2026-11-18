@@ -6,7 +6,6 @@ $customerId = (int)$_SESSION['customer_id'];
 $error = '';
 $success = '';
 
-// Time slots available
 $timeSlots = [
     '09:00:00' => '09:00 AM',
     '10:00:00' => '10:00 AM',
@@ -26,37 +25,14 @@ $serviceOptions = [
     'General Inspection & Diagnostics'
 ];
 
-// 1. Add Vehicle for Logged-In Customer
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_vehicle'])) {
-    $plateNumber = strtoupper(trim($_POST['plate_number'] ?? ''));
-    $make = trim($_POST['make'] ?? '');
-    $model = trim($_POST['model'] ?? '');
-    $year = !empty($_POST['year']) ? (int)$_POST['year'] : null;
-
-    if (!empty($plateNumber) && !empty($make) && !empty($model)) {
-        $chk = $pdo->prepare("SELECT VehicleID FROM Vehicle WHERE PlateNumber = ?");
-        $chk->execute([$plateNumber]);
-        if ($chk->fetch()) {
-            $error = "Plate number $plateNumber is already registered.";
-        } else {
-            $ins = $pdo->prepare("INSERT INTO Vehicle (CustomerID, PlateNumber, Make, Model, Year) VALUES (?, ?, ?, ?, ?)");
-            $ins->execute([$customerId, $plateNumber, $make, $model, $year]);
-            $success = "Vehicle $plateNumber added to your account!";
-        }
-    } else {
-        $error = "Plate Number, Make, and Model are required.";
-    }
-}
-
-// 2. Create Booking (With Slot Collision Check & Mandatory T&C)
+// Create Booking (Prevents Double-Booking Same Slot & Enforces T&C)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_booking'])) {
-    $vehicleId = (int)($_POST['vehicle_id'] ?? 0);
-    $serviceType = trim($_POST['service_type'] ?? '');
-    $bookingDate = $_POST['booking_date'] ?? '';
-    $bookingTime = $_POST['booking_time'] ?? '';
+    $vehicleId     = (int)($_POST['vehicle_id'] ?? 0);
+    $serviceType   = trim($_POST['service_type'] ?? '');
+    $bookingDate   = $_POST['booking_date'] ?? '';
+    $bookingTime   = $_POST['booking_time'] ?? '';
     $termsAccepted = isset($_POST['terms_accepted']) ? 1 : 0;
 
-    // Verify ownership of vehicle
     $ownStmt = $pdo->prepare("SELECT VehicleID FROM Vehicle WHERE VehicleID = ? AND CustomerID = ?");
     $ownStmt->execute([$vehicleId, $customerId]);
 
@@ -69,21 +45,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_booking'])) {
     } elseif (strtotime($bookingDate . ' ' . $bookingTime) <= time()) {
         $error = "Booking date and time must be in the future.";
     } else {
-        // FEATURE 1: Avoid Same Slot (Prevent double-booking active slots)
+        // Avoid Same Slot Check
         $slotStmt = $pdo->prepare("SELECT BookingID FROM Booking WHERE BookingDate = ? AND BookingTime = ? AND Status != 'Cancelled'");
         $slotStmt->execute([$bookingDate, $bookingTime]);
 
         if ($slotStmt->fetch()) {
-            $error = "Sorry, the slot on $bookingDate at " . ($timeSlots[$bookingTime] ?? $bookingTime) . " is already booked. Please select another time slot.";
+            $error = "Sorry, the slot on $bookingDate at " . ($timeSlots[$bookingTime] ?? $bookingTime) . " is already booked. Please choose another slot.";
         } else {
             $stmt = $pdo->prepare("INSERT INTO Booking (VehicleID, ServiceType, BookingDate, BookingTime, TermsAccepted, Status) VALUES (?, ?, ?, ?, 1, 'Pending')");
             $stmt->execute([$vehicleId, $serviceType, $bookingDate, $bookingTime]);
-            $success = "Booking submitted successfully! Please note cancellations require at least 24 hours advance notice.";
+            $success = "Booking confirmed! Remember: cancellations must be made at least 24 hours before your appointment.";
         }
     }
 }
 
-// 3. Cancel Booking (Enforce 24-Hour Advance Notice Policy)
+// Cancel Booking (24-Hour Advance Notice Policy)
 if (isset($_GET['cancel'])) {
     $bookingId = (int)$_GET['cancel'];
     $bStmt = $pdo->prepare("SELECT b.BookingID, b.BookingDate, b.BookingTime, b.Status 
@@ -101,7 +77,6 @@ if (isset($_GET['cancel'])) {
         $appointmentTimestamp = strtotime($booking['BookingDate'] . ' ' . $booking['BookingTime']);
         $hoursRemaining = ($appointmentTimestamp - time()) / 3600;
 
-        // FEATURE 3: Cannot cancel immediately / within 24 hours
         if ($hoursRemaining < 24) {
             $error = "Cancellation Denied (T&C Policy): Bookings cannot be cancelled within 24 hours of the scheduled appointment (" . $booking['BookingDate'] . " " . date('h:i A', $appointmentTimestamp) . ").";
         } else {
@@ -112,13 +87,11 @@ if (isset($_GET['cancel'])) {
     }
 }
 
-// Fetch Customer's Vehicles
 $vListStmt = $pdo->prepare("SELECT * FROM Vehicle WHERE CustomerID = ? ORDER BY VehicleID DESC");
 $vListStmt->execute([$customerId]);
 $myVehicles = $vListStmt->fetchAll();
 
-// Fetch Customer's Bookings
-$bListStmt = $pdo->prepare("SELECT b.*, v.PlateNumber, v.Make, v.Model 
+$bListStmt = $pdo->prepare("SELECT b.*, v.PlateNumber, v.Make, v.Model, v.VehicleType 
                             FROM Booking b
                             JOIN Vehicle v ON b.VehicleID = v.VehicleID
                             WHERE v.CustomerID = ?
@@ -126,5 +99,5 @@ $bListStmt = $pdo->prepare("SELECT b.*, v.PlateNumber, v.Make, v.Model
 $bListStmt->execute([$customerId]);
 $myBookings = $bListStmt->fetchAll();
 
-require_once 'customer_portal_view.html';
+require_once 'customer_booking_view.html';
 ?>

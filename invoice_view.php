@@ -6,7 +6,7 @@ $invoiceId = (int)($_GET['invoice_id'] ?? 0);
 $jobId = (int)($_GET['job_id'] ?? 0);
 
 if ($invoiceId > 0) {
-    $stmt = $pdo->prepare("SELECT inv.*, c.FullName AS CustomerName, v.PlateNumber, v.Make, v.Model
+    $stmt = $pdo->prepare("SELECT inv.*, c.FullName AS CustomerName, v.PlateNumber, v.Make, v.Model, v.VehicleType
                            FROM Invoice inv
                            JOIN RepairJob r ON inv.JobID = r.JobID
                            JOIN Booking b ON r.BookingID = b.BookingID
@@ -16,7 +16,7 @@ if ($invoiceId > 0) {
     $stmt->execute([$invoiceId]);
     $invoice = $stmt->fetch();
 } else {
-    $stmt = $pdo->prepare("SELECT inv.*, c.FullName AS CustomerName, v.PlateNumber, v.Make, v.Model, r.JobID
+    $stmt = $pdo->prepare("SELECT inv.*, c.FullName AS CustomerName, v.PlateNumber, v.Make, v.Model, v.VehicleType, r.JobID
                            FROM RepairJob r
                            JOIN Booking b ON r.BookingID = b.BookingID
                            JOIN Vehicle v ON b.VehicleID = v.VehicleID

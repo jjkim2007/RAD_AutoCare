@@ -30,7 +30,7 @@
 
                 <p class="invoice-meta">
                     Customer: <?= htmlspecialchars($invoice['CustomerName'] ?? 'Walk-in') ?> &nbsp;|&nbsp; 
-                    Vehicle: <?= htmlspecialchars($invoice['PlateNumber'] ?? 'N/A') ?> (<?= htmlspecialchars(($invoice['Make'] ?? '') . ' ' . ($invoice['Model'] ?? '')) ?>)
+                    Vehicle: <?= htmlspecialchars($invoice['PlateNumber'] ?? 'N/A') ?> (<?= htmlspecialchars(($invoice['Make'] ?? '') . ' ' . ($invoice['Model'] ?? '')) ?> - <?= htmlspecialchars($invoice['VehicleType'] ?? 'Sedan') ?>)
                 </p>
 
                 <table class="data-table">

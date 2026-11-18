@@ -37,7 +37,7 @@
                             <option value="">-- Select Vehicle --</option>
                             <?php foreach ($vehicles as $v): ?>
                                 <option value="<?= $v['VehicleID'] ?>">
-                                    <?= htmlspecialchars($v['PlateNumber']) ?> — <?= htmlspecialchars($v['Make'] . ' ' . $v['Model']) ?> (<?= htmlspecialchars($v['FullName']) ?>)
+                                    <?= htmlspecialchars($v['PlateNumber']) ?> — <?= htmlspecialchars($v['Make'] . ' ' . $v['Model']) ?> [<?= htmlspecialchars($v['VehicleType'] ?? 'Sedan') ?>] (<?= htmlspecialchars($v['FullName']) ?>)
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -68,7 +68,6 @@
                         </select>
                     </div>
 
-                    <!-- Terms & Conditions Box -->
                     <div class="form-group" style="background: #f8f9fa; padding: 12px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 0.9rem;">
                         <strong>Terms &amp; Conditions (T&amp;C):</strong>
                         <ul style="margin: 6px 0 10px 18px; color: #555; line-height: 1.4;">

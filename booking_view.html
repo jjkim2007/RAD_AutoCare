@@ -23,7 +23,7 @@
         </aside>
 
         <main class="main-content">
-            <div class="card-box">
+            <div class="card-box" style="max-width: 1050px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2>Bookings Management</h2>
                     <a href="booking_create.php" class="btn btn-teal">+ New Booking Form</a>
@@ -45,7 +45,7 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Plate Number</th>
+                            <th>Vehicle &amp; Type</th>
                             <th>Customer</th>
                             <th>Service</th>
                             <th>Date &amp; Time Slot</th>
@@ -60,7 +60,12 @@
                             <?php foreach ($bookings as $b): ?>
                                 <tr>
                                     <td><?= htmlspecialchars($b['BookingID']) ?></td>
-                                    <td><?= htmlspecialchars($b['PlateNumber']) ?></td>
+                                    <td>
+                                        <strong><?= htmlspecialchars($b['PlateNumber']) ?></strong><br>
+                                        <span style="font-size: 0.85rem; color: #555;">
+                                            <?= htmlspecialchars($b['Make'] . ' ' . $b['Model']) ?> (<?= htmlspecialchars($b['VehicleType'] ?? 'Sedan') ?>)
+                                        </span>
+                                    </td>
                                     <td><?= htmlspecialchars($b['FullName']) ?></td>
                                     <td><?= htmlspecialchars($b['ServiceType']) ?></td>
                                     <td>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoCare - My Vehicles</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="top-header">
+        <h2>AutoCare Customer Portal &mdash; <?= htmlspecialchars($_SESSION['customer_name'] ?? 'Customer') ?></h2>
+        <a href="customer_logout.php" class="logout-link">Logout</a>
+    </header>
+
+    <div class="app-layout">
+        <aside class="sidebar">
+            <a href="customer_booking.php">My Bookings</a>
+            <a href="customer_vehicles.php" class="active">My Vehicles</a>
+        </aside>
+
+        <main class="main-content">
+            <div class="card-box" style="max-width: 850px;">
+                <h2>Register &amp; Manage My Vehicles</h2>
+                <br>
+
+                <?php if (!empty($error)): ?>
+                    <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+                <?php endif; ?>
+                <?php if (!empty($success)): ?>
+                    <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
+                <?php endif; ?>
+
+                <h3>Add New Vehicle</h3>
+                <form method="POST" action="customer_vehicles.php" style="margin-top: 12px;">
+                    <div class="form-group">
+                        <label>Plate Number:</label>
+                        <input type="text" name="plate_number" placeholder="e.g. PNG 1234" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Vehicle Brand / Make:</label>
+                        <select name="make" required>
+                            <option value="">-- Select Brand --</option>
+                            <?php foreach ($vehicleBrands as $brand): ?>
+                                <option value="<?= htmlspecialchars($brand) ?>"><?= htmlspecialchars($brand) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Model:</label>
+                        <input type="text" name="model" placeholder="e.g. Civic, Myvi, X50, Vios" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Vehicle Body Type:</label>
+                        <select name="vehicle_type" required>
+                            <option value="">-- Select Vehicle Type --</option>
+                            <?php foreach ($vehicleTypes as $type): ?>
+                                <option value="<?= htmlspecialchars($type) ?>"><?= htmlspecialchars($type) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Manufacture Year (Optional):</label>
+                        <input type="text" name="year" placeholder="e.g. 2023">
+                    </div>
+                    <button type="submit" name="add_vehicle" class="btn btn-teal">Register Vehicle</button>
+                    <a href="customer_booking.php" class="btn btn-secondary" style="margin-left: 8px;">Go to Booking &rarr;</a>
+                </form>
+
+                <hr style="margin: 25px 0;">
+
+                <h3>My Registered Vehicles</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Plate Number</th>
+                            <th>Brand &amp; Model</th>
+                            <th>Body Type</th>
+                            <th>Year</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($myVehicles)): ?>
+                            <tr><td colspan="5" style="text-align: center;">You have not registered any vehicles yet.</td></tr>
+                        <?php else: ?>
+                            <?php foreach ($myVehicles as $v): ?>
+                                <tr>
+                                    <td><strong><?= htmlspecialchars($v['PlateNumber']) ?></strong></td>
+                                    <td><?= htmlspecialchars($v['Make'] . ' ' . $v['Model']) ?></td>
+                                    <td><?= htmlspecialchars($v['VehicleType'] ?? 'Sedan') ?></td>
+                                    <td><?= htmlspecialchars($v['Year'] ?? '-') ?></td>
+                                    <td>
+                                        <a href="customer_vehicles.php?delete=<?= $v['VehicleID'] ?>" 
+                                           class="btn btn-danger js-confirm-action"
+                                           data-confirm="Remove vehicle <?= htmlspecialchars($v['PlateNumber']) ?>?"
+                                           style="padding: 4px 8px; font-size: 12px;">Remove</a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

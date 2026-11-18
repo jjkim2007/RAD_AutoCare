@@ -41,7 +41,7 @@
                         <div class="job-card">
                             <div class="job-info">
                                 <strong>Job #<?= htmlspecialchars($job['JobID']) ?></strong> &mdash; 
-                                <?= htmlspecialchars($job['Make'] . ' ' . $job['Model']) ?> (<?= htmlspecialchars($job['PlateNumber']) ?>) &mdash; 
+                                <?= htmlspecialchars($job['Make'] . ' ' . $job['Model']) ?> [<?= htmlspecialchars($job['VehicleType'] ?? 'Sedan') ?>] (<?= htmlspecialchars($job['PlateNumber']) ?>) &mdash; 
                                 Mechanic: <?= htmlspecialchars($job['MechanicName'] ?? 'Unassigned') ?>
                             </div>
 

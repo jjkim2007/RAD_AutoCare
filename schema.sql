@@ -1,4 +1,4 @@
--- AutoCare Workshop Management System SQL Schema (Updated)
+-- AutoCare Workshop Management System SQL Schema
 CREATE DATABASE IF NOT EXISTS `AutoCareDB` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `AutoCareDB`;
 
@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS `Vehicle` (
   `PlateNumber` VARCHAR(20) NOT NULL UNIQUE,
   `Make` VARCHAR(50) NOT NULL,
   `Model` VARCHAR(50) NOT NULL,
+  `VehicleType` VARCHAR(30) NOT NULL DEFAULT 'Sedan',
   `Year` INT DEFAULT NULL,
   FOREIGN KEY (`CustomerID`) REFERENCES `Customer`(`CustomerID`) ON DELETE CASCADE
 );
@@ -79,7 +80,6 @@ CREATE TABLE IF NOT EXISTS `Invoice` (
   FOREIGN KEY (`JobID`) REFERENCES `RepairJob`(`JobID`) ON DELETE CASCADE
 );
 
--- Default Admin Account: bynnshiuantan@gmail.com / Tbs071022
 INSERT INTO `Staff` (`Name`, `Email`, `Password`, `Role`) 
 VALUES ('System Admin', 'bynnshiuantan@gmail.com', '$2y$10$YwCFo0c2lnXVsdSj/9co3eYzDKHJYAsSW0PYs2JfYJ64seOnyy3Eu', 'Administrator')
 ON DUPLICATE KEY UPDATE `Email`=`Email`;

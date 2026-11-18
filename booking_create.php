@@ -24,7 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($termsAccepted !== 1) {
         $error = "Please acknowledge and accept the Booking Terms & Conditions.";
     } elseif ($vehicleId > 0 && !empty($serviceType) && !empty($bookingDate) && !empty($bookingTime)) {
-        // Check if slot is already booked
         $slotStmt = $pdo->prepare("SELECT BookingID FROM Booking WHERE BookingDate = ? AND BookingTime = ? AND Status != 'Cancelled'");
         $slotStmt->execute([$bookingDate, $bookingTime]);
 
@@ -42,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$sql = "SELECT v.VehicleID, v.PlateNumber, v.Make, v.Model, c.FullName 
+$sql = "SELECT v.VehicleID, v.PlateNumber, v.Make, v.Model, v.VehicleType, c.FullName 
         FROM Vehicle v
         JOIN Customer c ON v.CustomerID = c.CustomerID
         ORDER BY v.PlateNumber ASC";

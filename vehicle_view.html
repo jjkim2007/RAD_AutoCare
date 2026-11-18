@@ -55,13 +55,28 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="make">Make / Manufacturer:</label>
-                        <input type="text" id="make" name="make" placeholder="e.g. Perodua, Toyota, Honda" required>
+                        <label for="make">Vehicle Brand / Manufacturer:</label>
+                        <select name="make" id="make" required>
+                            <option value="">-- Select Brand --</option>
+                            <?php foreach ($vehicleBrands as $brand): ?>
+                                <option value="<?= htmlspecialchars($brand) ?>"><?= htmlspecialchars($brand) ?></option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
 
                     <div class="form-group">
                         <label for="model">Model:</label>
-                        <input type="text" id="model" name="model" placeholder="e.g. Myvi, City, Vios" required>
+                        <input type="text" id="model" name="model" placeholder="e.g. Myvi, City, Vios, X70" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="vehicle_type">Vehicle Body Type:</label>
+                        <select name="vehicle_type" id="vehicle_type" required>
+                            <option value="">-- Select Vehicle Type --</option>
+                            <?php foreach ($vehicleTypes as $type): ?>
+                                <option value="<?= htmlspecialchars($type) ?>"><?= htmlspecialchars($type) ?></option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
 
                     <div class="form-group">
@@ -76,7 +91,7 @@
 
                 <h3>Vehicle Records</h3>
                 <form method="GET" action="vehicles.php" style="margin: 12px 0;">
-                    <input type="text" name="search" placeholder="Search by plate, model, or customer..." value="<?= htmlspecialchars($search ?? '') ?>" style="max-width: 320px; display:inline-block;">
+                    <input type="text" name="search" placeholder="Search by plate, brand, type, or customer..." value="<?= htmlspecialchars($search ?? '') ?>" style="max-width: 340px; display:inline-block;">
                     <button type="submit" class="btn btn-teal">Search</button>
                     <?php if ($search !== ''): ?>
                         <a href="vehicles.php" class="btn btn-secondary">Clear</a>
@@ -88,7 +103,8 @@
                         <tr>
                             <th>ID</th>
                             <th>Plate Number</th>
-                            <th>Make & Model</th>
+                            <th>Brand &amp; Model</th>
+                            <th>Type</th>
                             <th>Year</th>
                             <th>Owner Name</th>
                             <th>Owner Contact</th>
@@ -97,13 +113,14 @@
                     </thead>
                     <tbody>
                         <?php if (empty($vehicles)): ?>
-                            <tr><td colspan="7" style="text-align: center;">No vehicle records found.</td></tr>
+                            <tr><td colspan="8" style="text-align: center;">No vehicle records found.</td></tr>
                         <?php else: ?>
                             <?php foreach ($vehicles as $v): ?>
                                 <tr>
                                     <td><?= htmlspecialchars($v['VehicleID']) ?></td>
                                     <td><strong><?= htmlspecialchars($v['PlateNumber']) ?></strong></td>
                                     <td><?= htmlspecialchars($v['Make'] . ' ' . $v['Model']) ?></td>
+                                    <td><?= htmlspecialchars($v['VehicleType'] ?? 'Sedan') ?></td>
                                     <td><?= htmlspecialchars($v['Year'] ?? 'N/A') ?></td>
                                     <td><?= htmlspecialchars($v['FullName']) ?></td>
                                     <td><?= htmlspecialchars($v['Phone']) ?></td>

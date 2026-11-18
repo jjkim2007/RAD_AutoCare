@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoCare - Service Booking</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="top-header">
+        <h2>AutoCare Customer Portal &mdash; <?= htmlspecialchars($_SESSION['customer_name'] ?? 'Customer') ?></h2>
+        <a href="customer_logout.php" class="logout-link">Logout</a>
+    </header>
+
+    <div class="app-layout">
+        <aside class="sidebar">
+            <a href="customer_booking.php" class="active">My Bookings</a>
+            <a href="customer_vehicles.php">My Vehicles</a>
+        </aside>
+
+        <main class="main-content">
+            <div class="card-box" style="max-width: 900px; margin-bottom: 24px;">
+                <h2>Book a Service Appointment</h2>
+                <br>
+
+                <?php if (!empty($error)): ?>
+                    <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+                <?php endif; ?>
+                <?php if (!empty($success)): ?>
+                    <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
+                <?php endif; ?>
+
+                <?php if (empty($myVehicles)): ?>
+                    <div class="alert alert-danger">
+                        You haven't registered any vehicles yet. 
+                        <a href="customer_vehicles.php" style="color: #721c24; font-weight: bold; text-decoration: underline;">Click here to register your vehicle first &rarr;</a>
+                    </div>
+                <?php else: ?>
+                    <form method="POST" action="customer_booking.php">
+                        <div class="form-group">
+                            <label>Select Your Vehicle:</label>
+                            <select name="vehicle_id" required>
+                                <option value="">-- Choose Vehicle --</option>
+                                <?php foreach ($myVehicles as $v): ?>
+                                    <option value="<?= $v['VehicleID'] ?>">
+                                        <?= htmlspecialchars($v['PlateNumber']) ?> &mdash; <?= htmlspecialchars($v['Make'] . ' ' . $v['Model']) ?> [<?= htmlspecialchars($v['VehicleType'] ?? 'Sedan') ?>]
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <small style="display: block; margin-top: 4px; color: #666;">
+                                Need to add another car? <a href="customer_vehicles.php" style="color: #16a085;">Register a vehicle here</a>.
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Service Type:</label>
+                            <select name="service_type" required>
+                                <option value="">-- Choose Service --</option>
+                                <?php foreach ($serviceOptions as $opt): ?>
+                                    <option value="<?= htmlspecialchars($opt) ?>"><?= htmlspecialchars($opt) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Preferred Date:</label>
+                            <input type="date" name="booking_date" min="<?= date('Y-m-d') ?>" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Preferred Time Slot (1 Vehicle per Slot):</label>
+                            <select name="booking_time" required>
+                                <option value="">-- Choose Time Slot --</option>
+                                <?php foreach ($timeSlots as $val => $label): ?>
+                                    <option value="<?= $val ?>"><?= $label ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <!-- Terms & Conditions -->
+                        <div class="form-group" style="background: #f8f9fa; padding: 12px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 0.9rem;">
+                            <strong>Terms &amp; Conditions (T&amp;C):</strong>
+                            <ul style="margin: 6px 0 10px 18px; color: #555; line-height: 1.4;">
+                                <li>Each time slot accommodates one vehicle only to prevent overlapping bookings.</li>
+                                <li><strong>24-Hour Cancellation Policy:</strong> Bookings cannot be cancelled immediately prior to service; cancellations must be made at least <strong>24 hours before</strong> the scheduled appointment time.</li>
+                                <li>Please arrive 10 minutes before your scheduled slot.</li>
+                            </ul>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 0;">
+                                <input type="checkbox" name="terms_accepted" value="1" required style="width: auto;">
+                                <span>I have read and agree to the Booking Terms &amp; Conditions.</span>
+                            </label>
+                        </div>
+
+                        <button type="submit" name="create_booking" class="btn btn-teal">Confirm Booking</button>
+                    </form>
+                <?php endif; ?>
+            </div>
+
+            <!-- Booking History Card -->
+            <div class="card-box" style="max-width: 900px;">
+                <h2>My Service Bookings</h2>
+                <p style="font-size: 0.9rem; color: #666; margin: 6px 0 14px;">
+                    * Under our T&amp;C, bookings can only be cancelled at least <strong>24 hours before</strong> the scheduled appointment.
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Vehicle</th>
+                            <th>Type</th>
+                            <th>Service</th>
+                            <th>Date &amp; Time</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($myBookings)): ?>
+                            <tr><td colspan="7" style="text-align: center;">You have no bookings recorded yet.</td></tr>
+                        <?php else: ?>
+                            <?php foreach ($myBookings as $b): ?>
+                                <?php
+                                    $apptTs = strtotime($b['BookingDate'] . ' ' . $b['BookingTime']);
+                                    $hoursDiff = ($apptTs - time()) / 3600;
+                                    $canCancel = ($b['Status'] !== 'Cancelled') && ($hoursDiff >= 24);
+                                ?>
+                                <tr>
+                                    <td>#<?= htmlspecialchars($b['BookingID']) ?></td>
+                                    <td><strong><?= htmlspecialchars($b['PlateNumber']) ?></strong> &mdash; <?= htmlspecialchars($b['Make'] . ' ' . $b['Model']) ?></td>
+                                    <td><?= htmlspecialchars($b['VehicleType'] ?? 'Sedan') ?></td>
+                                    <td><?= htmlspecialchars($b['ServiceType']) ?></td>
+                                    <td><?= htmlspecialchars($b['BookingDate']) ?> at <?= date('h:i A', $apptTs) ?></td>
+                                    <td><strong><?= htmlspecialchars($b['Status']) ?></strong></td>
+                                    <td>
+                                        <?php if ($b['Status'] === 'Cancelled'): ?>
+                                            <span style="color: #888; font-size: 0.85rem;">Cancelled</span>
+                                        <?php elseif ($canCancel): ?>
+                                            <a href="customer_booking.php?cancel=<?= $b['BookingID'] ?>" 
+                                               class="btn btn-danger js-confirm-action" 
+                                               data-confirm="Cancel this appointment?"
+                                               style="padding: 4px 10px; font-size: 12px;">Cancel Booking</a>
+                                        <?php else: ?>
+                                            <span style="color: #c0392b; font-size: 0.82rem;" title="Must cancel at least 24 hours prior">Locked (&lt; 24h left)</span>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

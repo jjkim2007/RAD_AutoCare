@@ -30,7 +30,6 @@ if (isset($_GET['delete'])) {
     }
 }
 
-// Status Change with 24-Hour Cancellation Enforcement
 if (isset($_POST['update_status'])) {
     $bookingId = (int)$_POST['booking_id'];
     $newStatus = $_POST['status'] ?? '';
@@ -56,7 +55,8 @@ if (isset($_POST['update_status'])) {
     exit();
 }
 
-$sql = "SELECT b.BookingID, b.ServiceType, b.BookingDate, b.BookingTime, b.Status, v.PlateNumber, c.FullName 
+$sql = "SELECT b.BookingID, b.ServiceType, b.BookingDate, b.BookingTime, b.Status, 
+               v.PlateNumber, v.Make, v.Model, v.VehicleType, c.FullName 
         FROM Booking b
         JOIN Vehicle v ON b.VehicleID = v.VehicleID
         JOIN Customer c ON v.CustomerID = c.CustomerID
