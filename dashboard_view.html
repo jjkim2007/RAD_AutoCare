@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoCare - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="top-header">
+        <h2>AutoCare Workshop Management System</h2>
+        <a href="logout.php" class="logout-link">Logout</a>
+    </header>
+
+    <div class="app-layout">
+        <aside class="sidebar">
+            <a href="dashboard.php" class="active">Dashboard</a>
+            <a href="customers.php">Customers</a>
+            <a href="vehicles.php">Vehicles</a>
+            <a href="bookings.php">Bookings</a>
+            <a href="repair_jobs.php">Repair Jobs</a>
+            <a href="register_staff.php">Staff Registration</a>
+        </aside>
+
+        <main class="main-content">
+            <div class="card-box">
+                <h2>Welcome, <?= htmlspecialchars($_SESSION['staff_name'] ?? 'Staff') ?> (<?= htmlspecialchars($_SESSION['role'] ?? '') ?>)</h2>
+                <p style="margin-top: 6px; color: #666;">Workshop operation metrics summary:</p>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <h4>Total Customers</h4>
+                        <p><?= htmlspecialchars($totalCustomers) ?></p>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Pending Bookings</h4>
+                        <p><?= htmlspecialchars($pendingBookings) ?></p>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Active Jobs</h4>
+                        <p><?= htmlspecialchars($activeJobs) ?></p>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Unpaid Invoices</h4>
+                        <p><?= htmlspecialchars($unpaidInvoices) ?></p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

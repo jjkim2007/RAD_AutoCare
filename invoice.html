@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoCare - Invoice</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="top-header">
+        <h2>AutoCare Workshop Management System</h2>
+        <a href="logout.php" class="logout-link">Logout</a>
+    </header>
+
+    <div class="app-layout">
+        <aside class="sidebar">
+            <a href="dashboard.php">Dashboard</a>
+            <a href="customers.php">Customers</a>
+            <a href="vehicles.php">Vehicles</a>
+            <a href="bookings.php">Bookings</a>
+            <a href="repair_jobs.php" class="active">Repair Jobs</a>
+            <a href="register_staff.php">Staff Registration</a>
+        </aside>
+
+        <main class="main-content">
+            <div class="card-box" style="max-width: 750px;">
+                <h2 style="font-size: 1.6rem; margin-bottom: 8px;">
+                    Invoice #INV-<?= str_pad((string)($invoice['InvoiceID'] ?? $invoice['JobID']), 4, '0', STR_PAD_LEFT) ?>
+                </h2>
+
+                <p class="invoice-meta">
+                    Customer: <?= htmlspecialchars($invoice['CustomerName'] ?? 'Walk-in') ?> &nbsp;|&nbsp; 
+                    Vehicle: <?= htmlspecialchars($invoice['PlateNumber'] ?? 'N/A') ?> (<?= htmlspecialchars(($invoice['Make'] ?? '') . ' ' . ($invoice['Model'] ?? '')) ?>)
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th style="width: 80px; text-align: center;">Qty</th>
+                            <th style="width: 140px; text-align: right;">Amount (RM)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Labour Charge</td>
+                            <td style="text-align: center;">1</td>
+                            <td style="text-align: right;"><?= number_format($laborCost, 2) ?></td>
+                        </tr>
+
+                        <?php if (!empty($partsUsed)): ?>
+                            <?php foreach ($partsUsed as $part): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($part['PartName']) ?></td>
+                                    <td style="text-align: center;"><?= htmlspecialchars($part['QuantityUsed']) ?></td>
+                                    <td style="text-align: right;"><?= number_format($part['SubTotal'], 2) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="3" style="text-align: center; color: #888;">No replacement parts used for this repair job.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+
+                <div class="invoice-total-text">
+                    Total: RM <?= number_format($totalAmount, 2) ?>
+                </div>
+
+                <button type="button" class="btn btn-teal js-print-btn" style="padding: 12px 24px; font-size: 1rem;">
+                    Print / Save PDF
+                </button>
+                <a href="repair_jobs.php" class="btn btn-secondary" style="padding: 12px 20px; font-size: 1rem; margin-left: 10px;">
+                    Back to Jobs
+                </a>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

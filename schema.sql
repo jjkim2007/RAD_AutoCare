@@ -1,0 +1,82 @@
+-- AutoCare Workshop Management System SQL Schema
+CREATE DATABASE IF NOT EXISTS `AutoCareDB` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `AutoCareDB`;
+
+CREATE TABLE IF NOT EXISTS `Staff` (
+  `StaffID` INT AUTO_INCREMENT PRIMARY KEY,
+  `Name` VARCHAR(100) NOT NULL,
+  `Email` VARCHAR(100) NOT NULL UNIQUE,
+  `Password` VARCHAR(255) NOT NULL,
+  `Role` ENUM('Administrator', 'Receptionist', 'Mechanic') NOT NULL DEFAULT 'Receptionist',
+  `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS `Customer` (
+  `CustomerID` INT AUTO_INCREMENT PRIMARY KEY,
+  `FullName` VARCHAR(100) NOT NULL,
+  `Phone` VARCHAR(20) NOT NULL,
+  `Email` VARCHAR(100) DEFAULT NULL,
+  `Address` VARCHAR(255) DEFAULT NULL,
+  `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS `Vehicle` (
+  `VehicleID` INT AUTO_INCREMENT PRIMARY KEY,
+  `CustomerID` INT NOT NULL,
+  `PlateNumber` VARCHAR(20) NOT NULL UNIQUE,
+  `Make` VARCHAR(50) NOT NULL,
+  `Model` VARCHAR(50) NOT NULL,
+  `Year` INT DEFAULT NULL,
+  FOREIGN KEY (`CustomerID`) REFERENCES `Customer`(`CustomerID`) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS `Booking` (
+  `BookingID` INT AUTO_INCREMENT PRIMARY KEY,
+  `VehicleID` INT NOT NULL,
+  `ServiceType` VARCHAR(100) NOT NULL,
+  `BookingDate` DATE NOT NULL,
+  `Status` ENUM('Pending', 'Confirmed', 'Cancelled') NOT NULL DEFAULT 'Pending',
+  `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`VehicleID`) REFERENCES `Vehicle`(`VehicleID`) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS `RepairJob` (
+  `JobID` INT AUTO_INCREMENT PRIMARY KEY,
+  `BookingID` INT NOT NULL,
+  `StaffID` INT DEFAULT NULL,
+  `Description` TEXT DEFAULT NULL,
+  `Status` ENUM('Pending', 'In Progress', 'Awaiting Parts', 'Completed') NOT NULL DEFAULT 'Pending',
+  `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`BookingID`) REFERENCES `Booking`(`BookingID`) ON DELETE CASCADE,
+  FOREIGN KEY (`StaffID`) REFERENCES `Staff`(`StaffID`) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS `Part` (
+  `PartID` INT AUTO_INCREMENT PRIMARY KEY,
+  `PartName` VARCHAR(100) NOT NULL,
+  `UnitPrice` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+  `StockQty` INT NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS `JobPart` (
+  `JobPartID` INT AUTO_INCREMENT PRIMARY KEY,
+  `JobID` INT NOT NULL,
+  `PartID` INT NOT NULL,
+  `QuantityUsed` INT NOT NULL DEFAULT 1,
+  FOREIGN KEY (`JobID`) REFERENCES `RepairJob`(`JobID`) ON DELETE CASCADE,
+  FOREIGN KEY (`PartID`) REFERENCES `Part`(`PartID`) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS `Invoice` (
+  `InvoiceID` INT AUTO_INCREMENT PRIMARY KEY,
+  `JobID` INT NOT NULL UNIQUE,
+  `LaborCost` DECIMAL(10, 2) NOT NULL DEFAULT 80.00,
+  `PaymentStatus` ENUM('Unpaid', 'Paid') NOT NULL DEFAULT 'Unpaid',
+  `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`JobID`) REFERENCES `RepairJob`(`JobID`) ON DELETE CASCADE
+);
+
+-- Seed default administrator account: admin@autocare.com / admin123
+INSERT INTO `Staff` (`Name`, `Email`, `Password`, `Role`) 
+VALUES ('System Admin', 'admin@autocare.com', '$2y$10$wJ2NfZP0Yj2sRz1p50lTpuZsmJ486zB.gD2bJ7q/w8kQ4iM6TfE8G', 'Administrator')
+ON DUPLICATE KEY UPDATE `Email`=`Email`;

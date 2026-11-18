@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoCare - Repair Jobs</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="top-header">
+        <h2>AutoCare Workshop Management System</h2>
+        <a href="logout.php" class="logout-link">Logout</a>
+    </header>
+
+    <div class="app-layout">
+        <aside class="sidebar">
+            <a href="dashboard.php">Dashboard</a>
+            <a href="customers.php">Customers</a>
+            <a href="vehicles.php">Vehicles</a>
+            <a href="bookings.php">Bookings</a>
+            <a href="repair_jobs.php" class="active">Repair Jobs</a>
+            <a href="register_staff.php">Staff Registration</a>
+        </aside>
+
+        <main class="main-content">
+            <div class="filter-bar">
+                <strong>Filter by status:</strong> [ 
+                <a href="repair_jobs.php?status=All" class="<?= $filter === 'All' ? 'active-filter' : '' ?>">All</a> | 
+                <a href="repair_jobs.php?status=Pending" class="<?= $filter === 'Pending' ? 'active-filter' : '' ?>">Pending</a> | 
+                <a href="repair_jobs.php?status=In Progress" class="<?= $filter === 'In Progress' ? 'active-filter' : '' ?>">In Progress</a> | 
+                <a href="repair_jobs.php?status=Completed" class="<?= $filter === 'Completed' ? 'active-filter' : '' ?>">Completed</a> ]
+            </div>
+
+            <div class="job-card-list">
+                <?php if (empty($jobs)): ?>
+                    <div class="card-box" style="text-align: center; color: #7f8c8d;">
+                        No repair jobs found under the status "<?= htmlspecialchars($filter) ?>".
+                    </div>
+                <?php else: ?>
+                    <?php foreach ($jobs as $job): ?>
+                        <div class="job-card">
+                            <div class="job-info">
+                                <strong>Job #<?= htmlspecialchars($job['JobID']) ?></strong> &mdash; 
+                                <?= htmlspecialchars($job['Make'] . ' ' . $job['Model']) ?> (<?= htmlspecialchars($job['PlateNumber']) ?>) &mdash; 
+                                Mechanic: <?= htmlspecialchars($job['MechanicName'] ?? 'Unassigned') ?>
+                            </div>
+
+                            <div class="job-meta">
+                                <?php
+                                    $statusClass = 'status-pending';
+                                    if ($job['Status'] === 'In Progress') $statusClass = 'status-inprogress';
+                                    if ($job['Status'] === 'Completed') $statusClass = 'status-completed';
+                                ?>
+                                <span class="badge-status <?= $statusClass ?>">
+                                    <?= htmlspecialchars($job['Status']) ?>
+                                </span>
+
+                                <?php if (!empty($job['InvoiceID'])): ?>
+                                    <a href="invoice_view.php?invoice_id=<?= $job['InvoiceID'] ?>" class="btn btn-teal" style="padding: 4px 10px; font-size: 13px;">View Invoice</a>
+                                <?php else: ?>
+                                    <a href="invoice_view.php?job_id=<?= $job['JobID'] ?>" class="btn btn-teal" style="padding: 4px 10px; font-size: 13px;">View Invoice</a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

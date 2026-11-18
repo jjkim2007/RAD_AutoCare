@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoCare - New Booking Form</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="top-header">
+        <h2>AutoCare Workshop Management System</h2>
+        <a href="logout.php" class="logout-link">Logout</a>
+    </header>
+
+    <div class="app-layout">
+        <aside class="sidebar">
+            <a href="dashboard.php">Dashboard</a>
+            <a href="customers.php">Customers</a>
+            <a href="vehicles.php">Vehicles</a>
+            <a href="bookings.php" class="active">Bookings</a>
+            <a href="repair_jobs.php">Repair Jobs</a>
+            <a href="register_staff.php">Staff Registration</a>
+        </aside>
+
+        <main class="main-content">
+            <div class="card-box" style="max-width: 600px;">
+                <h2 style="margin-bottom: 20px;">New Booking Form</h2>
+
+                <?php if (!empty($error)): ?>
+                    <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+                <?php endif; ?>
+
+                <form method="POST" action="booking_create.php">
+                    <div class="form-group">
+                        <label>Select Vehicle:</label>
+                        <select name="vehicle_id" required>
+                            <option value="">-- Select Vehicle --</option>
+                            <?php foreach ($vehicles as $v): ?>
+                                <option value="<?= $v['VehicleID'] ?>">
+                                    <?= htmlspecialchars($v['PlateNumber']) ?> — <?= htmlspecialchars($v['Make'] . ' ' . $v['Model']) ?> (<?= htmlspecialchars($v['FullName']) ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Service Type:</label>
+                        <select name="service_type" required>
+                            <option value="">-- Select Service --</option>
+                            <?php foreach ($serviceOptions as $service): ?>
+                                <option value="<?= htmlspecialchars($service) ?>"><?= htmlspecialchars($service) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Booking Date:</label>
+                        <input type="date" name="booking_date" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-teal">Submit Booking</button>
+                    <a href="bookings.php" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

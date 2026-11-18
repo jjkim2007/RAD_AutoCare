@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoCare - Customers</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="top-header">
+        <h2>AutoCare Workshop Management System</h2>
+        <a href="logout.php" class="logout-link">Logout</a>
+    </header>
+
+    <div class="app-layout">
+        <aside class="sidebar">
+            <a href="dashboard.php">Dashboard</a>
+            <a href="customers.php" class="active">Customers</a>
+            <a href="vehicles.php">Vehicles</a>
+            <a href="bookings.php">Bookings</a>
+            <a href="repair_jobs.php">Repair Jobs</a>
+            <a href="register_staff.php">Staff Registration</a>
+        </aside>
+
+        <main class="main-content">
+            <div class="card-box">
+                <h2>Customer Management</h2>
+                <br>
+                <?php if (isset($_GET['msg']) && $_GET['msg'] === 'added'): ?>
+                    <div class="alert alert-success">Customer added successfully!</div>
+                <?php elseif (isset($_GET['msg']) && $_GET['msg'] === 'deleted'): ?>
+                    <div class="alert alert-success">Customer deleted successfully!</div>
+                <?php elseif (!empty($msg)): ?>
+                    <div class="alert alert-danger"><?= htmlspecialchars($msg) ?></div>
+                <?php endif; ?>
+
+                <h3>Add New Customer</h3>
+                <form method="POST" action="customers.php" style="margin-top: 12px;">
+                    <div class="form-group">
+                        <input type="text" name="fullName" placeholder="Full Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="phone" placeholder="Phone Number" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" name="email" placeholder="Email Address">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="address" placeholder="Residential Address">
+                    </div>
+                    <button type="submit" name="add_customer" class="btn btn-teal">Add Customer</button>
+                </form>
+
+                <hr style="margin: 25px 0;">
+
+                <h3>Customer Records</h3>
+                <form method="GET" action="customers.php" style="margin: 12px 0;">
+                    <input type="text" name="search" placeholder="Search by name or phone..." value="<?= htmlspecialchars($search) ?>" style="max-width: 280px; display:inline-block;">
+                    <button type="submit" class="btn btn-teal">Search</button>
+                    <?php if ($search !== ''): ?>
+                        <a href="customers.php" class="btn btn-secondary">Clear</a>
+                    <?php endif; ?>
+                </form>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th>Address</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($customers)): ?>
+                            <tr><td colspan="6" style="text-align: center;">No customer records found.</td></tr>
+                        <?php else: ?>
+                            <?php foreach ($customers as $c): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($c['CustomerID']) ?></td>
+                                    <td><?= htmlspecialchars($c['FullName']) ?></td>
+                                    <td><?= htmlspecialchars($c['Phone']) ?></td>
+                                    <td><?= htmlspecialchars($c['Email']) ?></td>
+                                    <td><?= htmlspecialchars($c['Address']) ?></td>
+                                    <td>
+                                        <a href="customer_edit.php?id=<?= $c['CustomerID'] ?>" class="btn btn-teal" style="padding: 4px 8px; font-size: 12px;">Edit</a>
+                                        <a href="customers.php?delete=<?= $c['CustomerID'] ?>" 
+                                           class="btn btn-danger js-confirm-action" 
+                                           data-confirm="Delete this customer? All linked vehicles and bookings will be deleted."
+                                           style="padding: 4px 8px; font-size: 12px;">Delete</a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>
