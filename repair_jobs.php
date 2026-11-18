@@ -2,7 +2,6 @@
 require_once 'auth_check.php';
 require_once 'dbConnect.php';
 
-/** @var PDO $pdo */
 $filter = trim($_GET['status'] ?? 'All');
 
 $sql = "SELECT r.JobID, r.Status, r.Description,

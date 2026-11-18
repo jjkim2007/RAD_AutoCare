@@ -55,7 +55,30 @@
 
                     <div class="form-group">
                         <label>Booking Date:</label>
-                        <input type="date" name="booking_date" required>
+                        <input type="date" name="booking_date" min="<?= date('Y-m-d') ?>" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Time Slot (1 Vehicle per Slot):</label>
+                        <select name="booking_time" required>
+                            <option value="">-- Choose Time Slot --</option>
+                            <?php foreach ($timeSlots as $val => $label): ?>
+                                <option value="<?= $val ?>"><?= $label ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Terms & Conditions Box -->
+                    <div class="form-group" style="background: #f8f9fa; padding: 12px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 0.9rem;">
+                        <strong>Terms &amp; Conditions (T&amp;C):</strong>
+                        <ul style="margin: 6px 0 10px 18px; color: #555; line-height: 1.4;">
+                            <li>Only one booking is permitted per date and time slot.</li>
+                            <li><strong>24-Hour Cancellation Policy:</strong> Bookings cannot be cancelled immediately prior to service; cancellations must be made at least <strong>24 hours before</strong> the scheduled appointment time.</li>
+                        </ul>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 0;">
+                            <input type="checkbox" name="terms_accepted" value="1" required style="width: auto;">
+                            <span>Customer agrees to the Booking Terms &amp; Conditions.</span>
+                        </label>
                     </div>
 
                     <button type="submit" class="btn btn-teal">Submit Booking</button>

@@ -1,4 +1,4 @@
--- AutoCare Workshop Management System SQL Schema
+-- AutoCare Workshop Management System SQL Schema (Updated)
 CREATE DATABASE IF NOT EXISTS `AutoCareDB` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `AutoCareDB`;
 
@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS `Customer` (
   `CustomerID` INT AUTO_INCREMENT PRIMARY KEY,
   `FullName` VARCHAR(100) NOT NULL,
   `Phone` VARCHAR(20) NOT NULL,
-  `Email` VARCHAR(100) DEFAULT NULL,
+  `Email` VARCHAR(100) UNIQUE DEFAULT NULL,
+  `Password` VARCHAR(255) DEFAULT NULL,
   `Address` VARCHAR(255) DEFAULT NULL,
   `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -35,6 +36,8 @@ CREATE TABLE IF NOT EXISTS `Booking` (
   `VehicleID` INT NOT NULL,
   `ServiceType` VARCHAR(100) NOT NULL,
   `BookingDate` DATE NOT NULL,
+  `BookingTime` TIME NOT NULL,
+  `TermsAccepted` TINYINT(1) NOT NULL DEFAULT 1,
   `Status` ENUM('Pending', 'Confirmed', 'Cancelled') NOT NULL DEFAULT 'Pending',
   `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (`VehicleID`) REFERENCES `Vehicle`(`VehicleID`) ON DELETE CASCADE
@@ -76,7 +79,7 @@ CREATE TABLE IF NOT EXISTS `Invoice` (
   FOREIGN KEY (`JobID`) REFERENCES `RepairJob`(`JobID`) ON DELETE CASCADE
 );
 
--- Seed default administrator account: admin@autocare.com / admin123
+-- Default Admin Account: bynnshiuantan@gmail.com / Tbs071022
 INSERT INTO `Staff` (`Name`, `Email`, `Password`, `Role`) 
-VALUES ('System Admin', 'admin@autocare.com', '$2y$10$wJ2NfZP0Yj2sRz1p50lTpuZsmJ486zB.gD2bJ7q/w8kQ4iM6TfE8G', 'Administrator')
+VALUES ('System Admin', 'bynnshiuantan@gmail.com', '$2y$10$YwCFo0c2lnXVsdSj/9co3eYzDKHJYAsSW0PYs2JfYJ64seOnyy3Eu', 'Administrator')
 ON DUPLICATE KEY UPDATE `Email`=`Email`;

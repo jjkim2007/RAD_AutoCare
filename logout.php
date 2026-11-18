@@ -2,8 +2,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-$_SESSION = [];
-session_destroy();
+unset($_SESSION['staff_id'], $_SESSION['staff_name'], $_SESSION['role']);
 header("Location: login.php");
 exit();
 ?>

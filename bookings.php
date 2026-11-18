@@ -2,8 +2,8 @@
 require_once 'auth_check.php';
 require_once 'dbConnect.php';
 
-/** @var PDO $pdo */
-// Delete Booking safely
+$error = '';
+
 if (isset($_GET['delete'])) {
     $deleteId = (int)$_GET['delete'];
     try {
@@ -26,24 +26,41 @@ if (isset($_GET['delete'])) {
         exit();
     } catch (Exception $e) {
         $pdo->rollBack();
-        die("Error deleting booking: " . htmlspecialchars($e->getMessage()));
+        $error = "Error deleting booking: " . $e->getMessage();
     }
 }
 
-// Quick Status Change
+// Status Change with 24-Hour Cancellation Enforcement
 if (isset($_POST['update_status'])) {
+    $bookingId = (int)$_POST['booking_id'];
+    $newStatus = $_POST['status'] ?? '';
+
+    if ($newStatus === 'Cancelled') {
+        $bStmt = $pdo->prepare("SELECT BookingDate, BookingTime FROM Booking WHERE BookingID = ?");
+        $bStmt->execute([$bookingId]);
+        $bk = $bStmt->fetch();
+
+        if ($bk) {
+            $apptTs = strtotime($bk['BookingDate'] . ' ' . $bk['BookingTime']);
+            $hoursDiff = ($apptTs - time()) / 3600;
+            if ($hoursDiff < 24) {
+                header("Location: bookings.php?err=cancel_24h");
+                exit();
+            }
+        }
+    }
+
     $stmt = $pdo->prepare("UPDATE Booking SET Status = ? WHERE BookingID = ?");
-    $stmt->execute([$_POST['status'], (int)$_POST['booking_id']]);
+    $stmt->execute([$newStatus, $bookingId]);
     header("Location: bookings.php");
     exit();
 }
 
-// Query Bookings joined with Vehicle and Customer records
-$sql = "SELECT b.BookingID, b.ServiceType, b.BookingDate, b.Status, v.PlateNumber, c.FullName 
+$sql = "SELECT b.BookingID, b.ServiceType, b.BookingDate, b.BookingTime, b.Status, v.PlateNumber, c.FullName 
         FROM Booking b
         JOIN Vehicle v ON b.VehicleID = v.VehicleID
         JOIN Customer c ON v.CustomerID = c.CustomerID
-        ORDER BY b.BookingDate DESC";
+        ORDER BY b.BookingDate DESC, b.BookingTime DESC";
 $bookings = $pdo->query($sql)->fetchAll();
 
 require_once 'booking_view.html';

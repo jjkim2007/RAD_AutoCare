@@ -2,25 +2,18 @@
 require_once 'auth_check.php';
 require_once 'dbConnect.php';
 
-/** @var PDO $pdo */
-$msg = '';
 $error = '';
 
-// Safe cascading delete vehicle
 if (isset($_GET['delete'])) {
     $deleteId = (int)$_GET['delete'];
     try {
         $pdo->beginTransaction();
-        
-        // Find booking IDs
         $bStmt = $pdo->prepare("SELECT BookingID FROM Booking WHERE VehicleID = ?");
         $bStmt->execute([$deleteId]);
         $bookingIds = $bStmt->fetchAll(PDO::FETCH_COLUMN);
 
         if (!empty($bookingIds)) {
             $inBookings = implode(',', array_fill(0, count($bookingIds), '?'));
-            
-            // Find Job IDs
             $jStmt = $pdo->prepare("SELECT JobID FROM RepairJob WHERE BookingID IN ($inBookings)");
             $jStmt->execute($bookingIds);
             $jobIds = $jStmt->fetchAll(PDO::FETCH_COLUMN);
@@ -45,7 +38,6 @@ if (isset($_GET['delete'])) {
     }
 }
 
-// Add New Vehicle 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_vehicle'])) {
     $customerId  = (int)($_POST['customer_id'] ?? 0);
     $plateNumber = strtoupper(trim($_POST['plate_number'] ?? ''));
@@ -70,7 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_vehicle'])) {
     }
 }
 
-// Search and Read Vehicles
 $search = trim($_GET['search'] ?? '');
 if ($search !== '') {
     $sql = "SELECT v.VehicleID, v.PlateNumber, v.Make, v.Model, v.Year, c.FullName, c.Phone

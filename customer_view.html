@@ -82,8 +82,8 @@
                                     <td><?= htmlspecialchars($c['CustomerID']) ?></td>
                                     <td><?= htmlspecialchars($c['FullName']) ?></td>
                                     <td><?= htmlspecialchars($c['Phone']) ?></td>
-                                    <td><?= htmlspecialchars($c['Email']) ?></td>
-                                    <td><?= htmlspecialchars($c['Address']) ?></td>
+                                    <td><?= htmlspecialchars($c['Email'] ?? '-') ?></td>
+                                    <td><?= htmlspecialchars($c['Address'] ?? '-') ?></td>
                                     <td>
                                         <a href="customer_edit.php?id=<?= $c['CustomerID'] ?>" class="btn btn-teal" style="padding: 4px 8px; font-size: 12px;">Edit</a>
                                         <a href="customers.php?delete=<?= $c['CustomerID'] ?>" 

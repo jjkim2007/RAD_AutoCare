@@ -2,7 +2,6 @@
 require_once 'auth_check.php';
 require_once 'dbConnect.php';
 
-/** @var PDO $pdo */
 if (($_SESSION['role'] ?? '') !== 'Administrator') {
     die("Access denied. Only Administrators can register new staff.");
 }

@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Intercept delete actions
     const confirmButtons = document.querySelectorAll(".js-confirm-action");
     confirmButtons.forEach((btn) => {
         btn.addEventListener("click", (e) => {
@@ -10,7 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // 2. Auto-submit dropdowns on selection change
     const autoSubmitSelects = document.querySelectorAll(".js-auto-submit");
     autoSubmitSelects.forEach((selectElem) => {
         selectElem.addEventListener("change", function () {
@@ -18,7 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // 3. Print / Save PDF Handler
     const printButtons = document.querySelectorAll(".js-print-btn");
     printButtons.forEach((btn) => {
         btn.addEventListener("click", () => {

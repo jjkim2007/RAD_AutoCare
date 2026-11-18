@@ -2,7 +2,6 @@
 require_once 'auth_check.php';
 require_once 'dbConnect.php';
 
-/** @var PDO $pdo */
 $invoiceId = (int)($_GET['invoice_id'] ?? 0);
 $jobId = (int)($_GET['job_id'] ?? 0);
 
@@ -34,7 +33,6 @@ if (!$invoice) {
 
 $currentJobId = $invoice['JobID'];
 
-// Fetch linked parts from JobPart & Part
 $stmtParts = $pdo->prepare("SELECT p.PartName, jp.QuantityUsed, p.UnitPrice, 
                                    (jp.QuantityUsed * p.UnitPrice) AS SubTotal
                             FROM JobPart jp

@@ -2,7 +2,6 @@
 require_once 'auth_check.php';
 require_once 'dbConnect.php';
 
-/** @var PDO $pdo */
 $id = (int)($_GET['id'] ?? 0);
 $stmt = $pdo->prepare("SELECT * FROM Customer WHERE CustomerID = ?");
 $stmt->execute([$id]);
@@ -21,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($name !== '' && $phone !== '') {
         $updateStmt = $pdo->prepare("UPDATE Customer SET FullName = ?, Phone = ?, Email = ?, Address = ? WHERE CustomerID = ?");
-        $updateStmt->execute([$name, $phone, $email, $address, $id]);
+        $updateStmt->execute([$name, $phone, $email !== '' ? $email : null, $address, $id]);
         header("Location: customers.php");
         exit();
     } else {

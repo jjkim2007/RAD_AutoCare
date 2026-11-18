@@ -2,32 +2,24 @@
 require_once 'auth_check.php';
 require_once 'dbConnect.php';
 
-/** @var PDO $pdo */
 $msg = '';
 
-// Safe cascading delete customer
 if (isset($_GET['delete'])) {
     $deleteId = (int)$_GET['delete'];
     try {
         $pdo->beginTransaction();
-        
-        // Find vehicle IDs for this customer
         $vStmt = $pdo->prepare("SELECT VehicleID FROM Vehicle WHERE CustomerID = ?");
         $vStmt->execute([$deleteId]);
         $vehicleIds = $vStmt->fetchAll(PDO::FETCH_COLUMN);
 
         if (!empty($vehicleIds)) {
             $inVehicles = implode(',', array_fill(0, count($vehicleIds), '?'));
-            
-            // Find booking IDs
             $bStmt = $pdo->prepare("SELECT BookingID FROM Booking WHERE VehicleID IN ($inVehicles)");
             $bStmt->execute($vehicleIds);
             $bookingIds = $bStmt->fetchAll(PDO::FETCH_COLUMN);
 
             if (!empty($bookingIds)) {
                 $inBookings = implode(',', array_fill(0, count($bookingIds), '?'));
-                
-                // Find Job IDs
                 $jStmt = $pdo->prepare("SELECT JobID FROM RepairJob WHERE BookingID IN ($inBookings)");
                 $jStmt->execute($bookingIds);
                 $jobIds = $jStmt->fetchAll(PDO::FETCH_COLUMN);
@@ -53,7 +45,6 @@ if (isset($_GET['delete'])) {
     }
 }
 
-// Add Customer
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_customer'])) {
     $name = trim($_POST['fullName'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
@@ -62,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_customer'])) {
 
     if ($name !== '' && $phone !== '') {
         $stmt = $pdo->prepare("INSERT INTO Customer (FullName, Phone, Email, Address) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$name, $phone, $email, $address]);
+        $stmt->execute([$name, $phone, $email !== '' ? $email : null, $address]);
         header("Location: customers.php?msg=added");
         exit();
     } else {
@@ -70,7 +61,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_customer'])) {
     }
 }
 
-// Search and Filter
 $search = trim($_GET['search'] ?? '');
 if ($search !== '') {
     $stmt = $pdo->prepare("SELECT * FROM Customer WHERE FullName LIKE ? OR Phone LIKE ? ORDER BY CustomerID DESC");

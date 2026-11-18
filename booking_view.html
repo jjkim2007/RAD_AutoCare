@@ -33,14 +33,22 @@
                     <div class="alert alert-success">New booking registered successfully!</div>
                 <?php endif; ?>
 
+                <?php if (isset($_GET['err']) && $_GET['err'] === 'cancel_24h'): ?>
+                    <div class="alert alert-danger">Cancellation Policy Violation: Bookings cannot be cancelled within 24 hours of the scheduled appointment!</div>
+                <?php endif; ?>
+
+                <?php if (!empty($error)): ?>
+                    <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+                <?php endif; ?>
+
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Booking ID</th>
+                            <th>ID</th>
                             <th>Plate Number</th>
                             <th>Customer</th>
                             <th>Service</th>
-                            <th>Date</th>
+                            <th>Date &amp; Time Slot</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>
@@ -55,7 +63,10 @@
                                     <td><?= htmlspecialchars($b['PlateNumber']) ?></td>
                                     <td><?= htmlspecialchars($b['FullName']) ?></td>
                                     <td><?= htmlspecialchars($b['ServiceType']) ?></td>
-                                    <td><?= htmlspecialchars($b['BookingDate']) ?></td>
+                                    <td>
+                                        <?= htmlspecialchars($b['BookingDate']) ?> &mdash; 
+                                        <strong><?= date('h:i A', strtotime($b['BookingTime'])) ?></strong>
+                                    </td>
                                     <td>
                                         <form method="POST" style="display:inline;">
                                             <input type="hidden" name="booking_id" value="<?= htmlspecialchars($b['BookingID']) ?>">
