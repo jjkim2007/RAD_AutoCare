@@ -7,7 +7,6 @@ $customerId = (int)$_SESSION['customer_id'];
 $error = '';
 $success = '';
 
-// Add Vehicle
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_vehicle'])) {
     $plateNumber = strtoupper(trim($_POST['plate_number'] ?? ''));
     $make        = trim($_POST['make'] ?? '');
@@ -30,13 +29,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_vehicle'])) {
     }
 }
 
-// Delete Customer's Own Vehicle (only if no active bookings)
 if (isset($_GET['delete'])) {
     $vehicleId = (int)$_GET['delete'];
     $chkB = $pdo->prepare("SELECT BookingID FROM Booking WHERE VehicleID = ? AND Status != 'Cancelled'");
     $chkB->execute([$vehicleId]);
     if ($chkB->fetch()) {
-        $error = "Cannot delete this vehicle because it has active service bookings.";
+        $error = "Cannot remove this vehicle because it has active service bookings.";
     } else {
         $del = $pdo->prepare("DELETE FROM Vehicle WHERE VehicleID = ? AND CustomerID = ?");
         $del->execute([$vehicleId, $customerId]);
@@ -44,7 +42,6 @@ if (isset($_GET['delete'])) {
     }
 }
 
-// Fetch Customer's Registered Vehicles
 $vListStmt = $pdo->prepare("SELECT * FROM Vehicle WHERE CustomerID = ? ORDER BY VehicleID DESC");
 $vListStmt->execute([$customerId]);
 $myVehicles = $vListStmt->fetchAll();

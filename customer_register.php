@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = "This email is already registered. Please sign in instead.";
         } else {
             $hashed = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("INSERT INTO Customer (FullName, Phone, Email, Password, Address) VALUES (?, ?, ?, ?, ?)");
+            $stmt = $pdo->prepare("INSERT INTO Customer (FullName, Phone, Email, Password, Address, Status) VALUES (?, ?, ?, ?, ?, 'Active')");
             $stmt->execute([$fullName, $phone, $email, $hashed, $address]);
             header("Location: customer_login.php?msg=registered");
             exit();

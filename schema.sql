@@ -1,4 +1,4 @@
--- AutoCare Workshop Management System SQL Schema
+-- AutoCare Workshop Management System SQL Schema (Final Complete Edition)
 CREATE DATABASE IF NOT EXISTS `AutoCareDB` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `AutoCareDB`;
 
@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `Staff` (
   `Name` VARCHAR(100) NOT NULL,
   `Email` VARCHAR(100) NOT NULL UNIQUE,
   `Password` VARCHAR(255) NOT NULL,
-  `Role` ENUM('Administrator', 'Receptionist', 'Mechanic') NOT NULL DEFAULT 'Receptionist',
+  `Role` ENUM('Administrator', 'Service Agent', 'Technician') NOT NULL DEFAULT 'Service Agent',
   `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS `Customer` (
   `Email` VARCHAR(100) UNIQUE DEFAULT NULL,
   `Password` VARCHAR(255) DEFAULT NULL,
   `Address` VARCHAR(255) DEFAULT NULL,
+  `Status` ENUM('Active', 'Inactive') NOT NULL DEFAULT 'Active',
   `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -36,6 +37,8 @@ CREATE TABLE IF NOT EXISTS `Booking` (
   `BookingID` INT AUTO_INCREMENT PRIMARY KEY,
   `VehicleID` INT NOT NULL,
   `ServiceType` VARCHAR(100) NOT NULL,
+  `ServicePackage` VARCHAR(50) DEFAULT NULL,
+  `OilType` VARCHAR(30) DEFAULT NULL,
   `BookingDate` DATE NOT NULL,
   `BookingTime` TIME NOT NULL,
   `TermsAccepted` TINYINT(1) NOT NULL DEFAULT 1,
@@ -46,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `Booking` (
 
 CREATE TABLE IF NOT EXISTS `RepairJob` (
   `JobID` INT AUTO_INCREMENT PRIMARY KEY,
-  `BookingID` INT NOT NULL,
+  `BookingID` INT NOT NULL UNIQUE,
   `StaffID` INT DEFAULT NULL,
   `Description` TEXT DEFAULT NULL,
   `Status` ENUM('Pending', 'In Progress', 'Awaiting Parts', 'Completed') NOT NULL DEFAULT 'Pending',
@@ -80,6 +83,7 @@ CREATE TABLE IF NOT EXISTS `Invoice` (
   FOREIGN KEY (`JobID`) REFERENCES `RepairJob`(`JobID`) ON DELETE CASCADE
 );
 
+-- Default Admin Account: bynnshiuantan@gmail.com / Tbs071022
 INSERT INTO `Staff` (`Name`, `Email`, `Password`, `Role`) 
 VALUES ('System Admin', 'bynnshiuantan@gmail.com', '$2y$10$YwCFo0c2lnXVsdSj/9co3eYzDKHJYAsSW0PYs2JfYJ64seOnyy3Eu', 'Administrator')
 ON DUPLICATE KEY UPDATE `Email`=`Email`;

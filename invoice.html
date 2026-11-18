@@ -24,9 +24,14 @@
 
         <main class="main-content">
             <div class="card-box" style="max-width: 750px;">
-                <h2 style="font-size: 1.6rem; margin-bottom: 8px;">
-                    Invoice #INV-<?= str_pad((string)($invoice['InvoiceID'] ?? $invoice['JobID']), 4, '0', STR_PAD_LEFT) ?>
-                </h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <h2 style="font-size: 1.6rem;">
+                        Invoice #INV-<?= str_pad((string)($invoice['InvoiceID'] ?? $invoice['JobID']), 4, '0', STR_PAD_LEFT) ?>
+                    </h2>
+                    <span class="badge-status <?= ($invoice['PaymentStatus'] === 'Paid') ? 'status-completed' : 'status-inprogress' ?>" style="font-size: 1rem;">
+                        Status: <?= htmlspecialchars($invoice['PaymentStatus'] ?? 'Unpaid') ?>
+                    </span>
+                </div>
 
                 <p class="invoice-meta">
                     Customer: <?= htmlspecialchars($invoice['CustomerName'] ?? 'Walk-in') ?> &nbsp;|&nbsp; 
@@ -36,14 +41,14 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Item</th>
+                            <th>Item / Service</th>
                             <th style="width: 80px; text-align: center;">Qty</th>
                             <th style="width: 140px; text-align: right;">Amount (RM)</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Labour Charge</td>
+                            <td>Labour Charge &mdash; <?= htmlspecialchars(formatServiceSummary($invoice['ServiceType'] ?? 'General Service', $invoice['ServicePackage'] ?? null, $invoice['OilType'] ?? null)) ?></td>
                             <td style="text-align: center;">1</td>
                             <td style="text-align: right;"><?= number_format($laborCost, 2) ?></td>
                         </tr>
@@ -68,12 +73,26 @@
                     Total: RM <?= number_format($totalAmount, 2) ?>
                 </div>
 
-                <button type="button" class="btn btn-teal js-print-btn" style="padding: 12px 24px; font-size: 1rem;">
-                    Print / Save PDF
-                </button>
-                <a href="repair_jobs.php" class="btn btn-secondary" style="padding: 12px 20px; font-size: 1rem; margin-left: 10px;">
-                    Back to Jobs
-                </a>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                    <button type="button" class="btn btn-teal js-print-btn" style="padding: 10px 20px; font-size: 0.95rem;">
+                        Print / Save PDF
+                    </button>
+
+                    <form method="POST" action="invoice_view.php" style="display: inline;">
+                        <input type="hidden" name="invoice_id" value="<?= htmlspecialchars($invoice['InvoiceID']) ?>">
+                        <input type="hidden" name="payment_status" value="<?= ($invoice['PaymentStatus'] === 'Paid') ? 'Unpaid' : 'Paid' ?>">
+                        <button type="submit" name="toggle_payment" class="btn <?= ($invoice['PaymentStatus'] === 'Paid') ? 'btn-secondary' : 'btn-teal' ?>" style="padding: 10px 18px;">
+                            <?= ($invoice['PaymentStatus'] === 'Paid') ? 'Mark as Unpaid' : 'Mark as Paid' ?>
+                        </button>
+                    </form>
+
+                    <a href="repair_job_details.php?job_id=<?= $currentJobId ?>" class="btn btn-secondary" style="padding: 10px 18px;">
+                        Job Details
+                    </a>
+                    <a href="repair_jobs.php" class="btn btn-secondary" style="padding: 10px 18px;">
+                        Back to Jobs
+                    </a>
+                </div>
             </div>
         </main>
     </div>

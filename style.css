@@ -242,7 +242,7 @@ input:focus, select:focus, textarea:focus {
 
 .metrics-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 15px;
     margin-top: 20px;
 }
@@ -260,7 +260,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .metric-card p {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: bold;
     color: #007bff;
 }

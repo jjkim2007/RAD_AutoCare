@@ -83,7 +83,7 @@ if ($search !== '') {
     $vehicles = $pdo->query($sql)->fetchAll();
 }
 
-$customersList = $pdo->query("SELECT CustomerID, FullName, Phone FROM Customer ORDER BY FullName ASC")->fetchAll();
+$customersList = $pdo->query("SELECT CustomerID, FullName, Phone FROM Customer WHERE Status = 'Active' ORDER BY FullName ASC")->fetchAll();
 
 require_once 'vehicle_view.html';
 ?>

@@ -17,10 +17,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phone = trim($_POST['phone'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $address = trim($_POST['address'] ?? '');
+    $status = ($_POST['status'] ?? 'Active') === 'Inactive' ? 'Inactive' : 'Active';
 
     if ($name !== '' && $phone !== '') {
-        $updateStmt = $pdo->prepare("UPDATE Customer SET FullName = ?, Phone = ?, Email = ?, Address = ? WHERE CustomerID = ?");
-        $updateStmt->execute([$name, $phone, $email !== '' ? $email : null, $address, $id]);
+        $updateStmt = $pdo->prepare("UPDATE Customer SET FullName = ?, Phone = ?, Email = ?, Address = ?, Status = ? WHERE CustomerID = ?");
+        $updateStmt->execute([$name, $phone, $email !== '' ? $email : null, $address, $status, $id]);
         header("Location: customers.php");
         exit();
     } else {

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoCare - Repair Job #<?= htmlspecialchars($job['JobID']) ?> Details</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="top-header">
+        <h2>AutoCare Workshop Management System</h2>
+        <a href="logout.php" class="logout-link">Logout</a>
+    </header>
+
+    <div class="app-layout">
+        <aside class="sidebar">
+            <a href="dashboard.php">Dashboard</a>
+            <a href="customers.php">Customers</a>
+            <a href="vehicles.php">Vehicles</a>
+            <a href="bookings.php">Bookings</a>
+            <a href="repair_jobs.php" class="active">Repair Jobs</a>
+            <a href="register_staff.php">Staff Registration</a>
+        </aside>
+
+        <main class="main-content">
+            <div class="card-box" style="max-width: 920px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2>Repair Job #<?= htmlspecialchars($job['JobID']) ?> Details</h2>
+                    <div>
+                        <a href="invoice_view.php?job_id=<?= $job['JobID'] ?>" class="btn btn-teal">View / Print Invoice</a>
+                        <a href="repair_jobs.php" class="btn btn-secondary" style="margin-left: 8px;">&larr; Back to Jobs</a>
+                    </div>
+                </div>
+
+                <?php if (!empty($success)): ?>
+                    <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
+                <?php endif; ?>
+                <?php if (!empty($error)): ?>
+                    <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+                <?php endif; ?>
+
+                <table class="data-table" style="margin-bottom: 24px;">
+                    <tbody>
+                        <tr>
+                            <th style="width: 22%;">Customer</th>
+                            <td><?= htmlspecialchars($job['CustomerName']) ?> (<?= htmlspecialchars($job['CustomerPhone']) ?>)</td>
+                            <th style="width: 22%;">Booked Service</th>
+                            <td><strong><?= htmlspecialchars(formatServiceSummary($job['ServiceType'], $job['ServicePackage'], $job['OilType'])) ?></strong></td>
+                        </tr>
+                        <tr>
+                            <th>Vehicle</th>
+                            <td>
+                                <strong><?= htmlspecialchars($job['PlateNumber']) ?></strong> &mdash; 
+                                <?= htmlspecialchars($job['Make'] . ' ' . $job['Model']) ?> [<?= htmlspecialchars($job['VehicleType'] ?? 'Sedan') ?>]
+                            </td>
+                            <th>Appointment</th>
+                            <td><?= htmlspecialchars($job['BookingDate']) ?> at <?= date('h:i A', strtotime($job['BookingTime'])) ?></td>
+                        </tr>
+                        <tr>
+                            <th>Assigned Technician</th>
+                            <td><?= htmlspecialchars($job['TechnicianName'] ?? 'Unassigned') ?></td>
+                            <th>Invoice</th>
+                            <td>
+                                <?= !empty($job['InvoiceID']) 
+                                    ? '#INV-' . str_pad((string)$job['InvoiceID'], 4, '0', STR_PAD_LEFT) . ' (' . htmlspecialchars($job['PaymentStatus']) . ')' 
+                                    : 'Auto-Generated' ?>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Update Status, Technician &amp; Labour Charge</h3>
+                <form method="POST" action="repair_job_details.php?job_id=<?= $job['JobID'] ?>" style="margin: 12px 0 24px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
+                        <div class="form-group">
+                            <label>Job Status:</label>
+                            <select name="status">
+                                <option value="Pending" <?= $job['Status'] === 'Pending' ? 'selected' : '' ?>>Pending</option>
+                                <option value="In Progress" <?= $job['Status'] === 'In Progress' ? 'selected' : '' ?>>In Progress</option>
+                                <option value="Awaiting Parts" <?= $job['Status'] === 'Awaiting Parts' ? 'selected' : '' ?>>Awaiting Parts</option>
+                                <option value="Completed" <?= $job['Status'] === 'Completed' ? 'selected' : '' ?>>Completed</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Assign Technician / Staff:</label>
+                            <select name="staff_id">
+                                <option value="">-- Unassigned --</option>
+                                <?php foreach ($technicians as $t): ?>
+                                    <option value="<?= $t['StaffID'] ?>" <?= ($job['StaffID'] == $t['StaffID']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($t['Name']) ?> (<?= htmlspecialchars($t['Role']) ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Labour Cost (RM):</label>
+                            <input type="text" name="labor_cost" value="<?= number_format($laborCost, 2, '.', '') ?>" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Service / Repair Description &amp; Notes:</label>
+                        <textarea name="description" rows="3"><?= htmlspecialchars($job['Description'] ?? '') ?></textarea>
+                    </div>
+
+                    <button type="submit" name="update_job" class="btn btn-teal">Save Job &amp; Invoice Changes</button>
+                </form>
+
+                <hr style="margin: 24px 0;">
+
+                <h3>Add Replacement Parts (Auto-Updates Invoice)</h3>
+                <form method="POST" action="repair_job_details.php?job_id=<?= $job['JobID'] ?>" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin: 12px 0 20px;">
+                    <div style="flex: 2; min-width: 200px;">
+                        <label style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:4px;">Part Name:</label>
+                        <input type="text" name="part_name" placeholder="e.g. Oil Filter / Brake Pad" required>
+                    </div>
+                    <div style="flex: 1; min-width: 110px;">
+                        <label style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:4px;">Unit Price (RM):</label>
+                        <input type="text" name="unit_price" placeholder="e.g. 45.00" required>
+                    </div>
+                    <div style="width: 90px;">
+                        <label style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:4px;">Qty:</label>
+                        <input type="text" name="quantity_used" value="1" required>
+                    </div>
+                    <div>
+                        <button type="submit" name="add_part" class="btn btn-secondary">+ Add Part</button>
+                    </div>
+                </form>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Item / Part Name</th>
+                            <th style="text-align: center;">Qty</th>
+                            <th style="text-align: right;">Unit Price (RM)</th>
+                            <th style="text-align: right;">Subtotal (RM)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Labour Charge (<?= htmlspecialchars(formatServiceSummary($job['ServiceType'], $job['ServicePackage'], $job['OilType'])) ?>)</td>
+                            <td style="text-align: center;">1</td>
+                            <td style="text-align: right;"><?= number_format($laborCost, 2) ?></td>
+                            <td style="text-align: right;"><?= number_format($laborCost, 2) ?></td>
+                        </tr>
+                        <?php foreach ($partsUsed as $part): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($part['PartName']) ?></td>
+                                <td style="text-align: center;"><?= htmlspecialchars($part['QuantityUsed']) ?></td>
+                                <td style="text-align: right;"><?= number_format((float)$part['UnitPrice'], 2) ?></td>
+                                <td style="text-align: right;"><?= number_format((float)$part['SubTotal'], 2) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                        <tr>
+                            <td colspan="3" style="text-align: right;"><strong>Total Payable:</strong></td>
+                            <td style="text-align: right;"><strong>RM <?= number_format($grandTotal, 2) ?></strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

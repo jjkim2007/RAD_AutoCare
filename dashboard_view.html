@@ -23,13 +23,21 @@
         </aside>
 
         <main class="main-content">
-            <div class="card-box">
+            <div class="card-box" style="max-width: 1050px;">
                 <h2>Welcome, <?= htmlspecialchars($_SESSION['staff_name'] ?? 'Staff') ?> (<?= htmlspecialchars($_SESSION['role'] ?? '') ?>)</h2>
-                <p style="margin-top: 6px; color: #666;">Workshop operation metrics summary:</p>
+                <p style="margin-top: 6px; color: #666;">Workshop operation &amp; financial metrics summary:</p>
 
                 <div class="metrics-grid">
+                    <div class="metric-card" style="background: #e8f8f5; border: 1px solid #a3e4d7;">
+                        <h4>Total Sales (Paid)</h4>
+                        <p style="color: #16a085;">RM <?= number_format($totalSales, 2) ?></p>
+                    </div>
                     <div class="metric-card">
-                        <h4>Total Customers</h4>
+                        <h4>Total Billed Revenue</h4>
+                        <p style="color: #2980b9;">RM <?= number_format($totalBilled, 2) ?></p>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Active Customers</h4>
                         <p><?= htmlspecialchars($totalCustomers) ?></p>
                     </div>
                     <div class="metric-card">
@@ -37,12 +45,12 @@
                         <p><?= htmlspecialchars($pendingBookings) ?></p>
                     </div>
                     <div class="metric-card">
-                        <h4>Active Jobs</h4>
+                        <h4>Active Repair Jobs</h4>
                         <p><?= htmlspecialchars($activeJobs) ?></p>
                     </div>
                     <div class="metric-card">
                         <h4>Unpaid Invoices</h4>
-                        <p><?= htmlspecialchars($unpaidInvoices) ?></p>
+                        <p style="color: #d35400;"><?= htmlspecialchars($unpaidInvoices) ?></p>
                     </div>
                 </div>
             </div>

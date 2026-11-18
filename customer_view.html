@@ -23,13 +23,19 @@
         </aside>
 
         <main class="main-content">
-            <div class="card-box">
+            <div class="card-box" style="max-width: 1050px;">
                 <h2>Customer Management</h2>
+                <p style="font-size: 0.88rem; color: #666; margin-top: 4px;">
+                    * Data Retention Policy: Customer records are retained for 5&ndash;10 years and cannot be permanently deleted. Use <strong>Mark Inactive</strong> to archive accounts.
+                </p>
                 <br>
+
                 <?php if (isset($_GET['msg']) && $_GET['msg'] === 'added'): ?>
                     <div class="alert alert-success">Customer added successfully!</div>
-                <?php elseif (isset($_GET['msg']) && $_GET['msg'] === 'deleted'): ?>
-                    <div class="alert alert-success">Customer deleted successfully!</div>
+                <?php elseif (isset($_GET['msg']) && $_GET['msg'] === 'deactivated'): ?>
+                    <div class="alert alert-success">Customer marked as Inactive (record preserved for retention compliance).</div>
+                <?php elseif (isset($_GET['msg']) && $_GET['msg'] === 'activated'): ?>
+                    <div class="alert alert-success">Customer reactivated successfully!</div>
                 <?php elseif (!empty($msg)): ?>
                     <div class="alert alert-danger"><?= htmlspecialchars($msg) ?></div>
                 <?php endif; ?>
@@ -54,10 +60,15 @@
                 <hr style="margin: 25px 0;">
 
                 <h3>Customer Records</h3>
-                <form method="GET" action="customers.php" style="margin: 12px 0;">
-                    <input type="text" name="search" placeholder="Search by name or phone..." value="<?= htmlspecialchars($search) ?>" style="max-width: 280px; display:inline-block;">
-                    <button type="submit" class="btn btn-teal">Search</button>
-                    <?php if ($search !== ''): ?>
+                <form method="GET" action="customers.php" style="margin: 12px 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+                    <input type="text" name="search" placeholder="Search by name or phone..." value="<?= htmlspecialchars($search) ?>" style="max-width: 260px;">
+                    <select name="status_filter" style="max-width: 160px;">
+                        <option value="All" <?= $statusFilter === 'All' ? 'selected' : '' ?>>All Statuses</option>
+                        <option value="Active" <?= $statusFilter === 'Active' ? 'selected' : '' ?>>Active Only</option>
+                        <option value="Inactive" <?= $statusFilter === 'Inactive' ? 'selected' : '' ?>>Inactive Only</option>
+                    </select>
+                    <button type="submit" class="btn btn-teal">Filter</button>
+                    <?php if ($search !== '' || $statusFilter !== 'All'): ?>
                         <a href="customers.php" class="btn btn-secondary">Clear</a>
                     <?php endif; ?>
                 </form>
@@ -69,7 +80,7 @@
                             <th>Name</th>
                             <th>Phone</th>
                             <th>Email</th>
-                            <th>Address</th>
+                            <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -78,18 +89,29 @@
                             <tr><td colspan="6" style="text-align: center;">No customer records found.</td></tr>
                         <?php else: ?>
                             <?php foreach ($customers as $c): ?>
-                                <tr>
+                                <?php $isInactive = (($c['Status'] ?? 'Active') === 'Inactive'); ?>
+                                <tr style="<?= $isInactive ? 'background-color: #f9f9f9; color: #888;' : '' ?>">
                                     <td><?= htmlspecialchars($c['CustomerID']) ?></td>
                                     <td><?= htmlspecialchars($c['FullName']) ?></td>
                                     <td><?= htmlspecialchars($c['Phone']) ?></td>
                                     <td><?= htmlspecialchars($c['Email'] ?? '-') ?></td>
-                                    <td><?= htmlspecialchars($c['Address'] ?? '-') ?></td>
+                                    <td>
+                                        <span class="badge-status <?= $isInactive ? 'status-cancelled' : 'status-completed' ?>">
+                                            <?= htmlspecialchars($c['Status'] ?? 'Active') ?>
+                                        </span>
+                                    </td>
                                     <td>
                                         <a href="customer_edit.php?id=<?= $c['CustomerID'] ?>" class="btn btn-teal" style="padding: 4px 8px; font-size: 12px;">Edit</a>
-                                        <a href="customers.php?delete=<?= $c['CustomerID'] ?>" 
-                                           class="btn btn-danger js-confirm-action" 
-                                           data-confirm="Delete this customer? All linked vehicles and bookings will be deleted."
-                                           style="padding: 4px 8px; font-size: 12px;">Delete</a>
+                                        <?php if (!$isInactive): ?>
+                                            <a href="customers.php?deactivate=<?= $c['CustomerID'] ?>" 
+                                               class="btn btn-danger js-confirm-action" 
+                                               data-confirm="Mark this customer as Inactive? (Record will be retained for 5-10 years)."
+                                               style="padding: 4px 8px; font-size: 12px;">Mark Inactive</a>
+                                        <?php else: ?>
+                                            <a href="customers.php?activate=<?= $c['CustomerID'] ?>" 
+                                               class="btn btn-secondary" 
+                                               style="padding: 4px 8px; font-size: 12px;">Reactivate</a>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

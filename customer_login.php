@@ -11,11 +11,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = trim($_POST['password'] ?? '');
 
     if (!empty($email) && !empty($password)) {
-        $stmt = $pdo->prepare("SELECT CustomerID, FullName, Password FROM Customer WHERE Email = ?");
+        $stmt = $pdo->prepare("SELECT CustomerID, FullName, Password, Status FROM Customer WHERE Email = ?");
         $stmt->execute([$email]);
         $customer = $stmt->fetch();
 
-        if ($customer && !empty($customer['Password']) && password_verify($password, $customer['Password'])) {
+        if ($customer && ($customer['Status'] ?? 'Active') === 'Inactive') {
+            $error = "This customer account is marked as Inactive. Please contact the workshop.";
+        } elseif ($customer && !empty($customer['Password']) && password_verify($password, $customer['Password'])) {
             $_SESSION['customer_id'] = $customer['CustomerID'];
             $_SESSION['customer_name'] = $customer['FullName'];
             header("Location: customer_booking.php");

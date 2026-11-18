@@ -23,14 +23,14 @@
         </aside>
 
         <main class="main-content">
-            <div class="card-box" style="max-width: 1050px;">
+            <div class="card-box" style="max-width: 1150px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2>Bookings Management</h2>
                     <a href="booking_create.php" class="btn btn-teal">+ New Booking Form</a>
                 </div>
 
                 <?php if (isset($_GET['msg']) && $_GET['msg'] === 'booked'): ?>
-                    <div class="alert alert-success">New booking registered successfully!</div>
+                    <div class="alert alert-success">New booking registered, and its Repair Job &amp; Invoice were automatically generated!</div>
                 <?php endif; ?>
 
                 <?php if (isset($_GET['err']) && $_GET['err'] === 'cancel_24h'): ?>
@@ -47,19 +47,20 @@
                             <th>ID</th>
                             <th>Vehicle &amp; Type</th>
                             <th>Customer</th>
-                            <th>Service</th>
+                            <th>Service &amp; Options</th>
                             <th>Date &amp; Time Slot</th>
                             <th>Status</th>
+                            <th>Linked Job / Invoice</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($bookings)): ?>
-                            <tr><td colspan="7" style="text-align: center;">No bookings recorded yet.</td></tr>
+                            <tr><td colspan="8" style="text-align: center;">No bookings recorded yet.</td></tr>
                         <?php else: ?>
                             <?php foreach ($bookings as $b): ?>
                                 <tr>
-                                    <td><?= htmlspecialchars($b['BookingID']) ?></td>
+                                    <td>#<?= htmlspecialchars($b['BookingID']) ?></td>
                                     <td>
                                         <strong><?= htmlspecialchars($b['PlateNumber']) ?></strong><br>
                                         <span style="font-size: 0.85rem; color: #555;">
@@ -67,7 +68,15 @@
                                         </span>
                                     </td>
                                     <td><?= htmlspecialchars($b['FullName']) ?></td>
-                                    <td><?= htmlspecialchars($b['ServiceType']) ?></td>
+                                    <td>
+                                        <strong><?= htmlspecialchars($b['ServiceType']) ?></strong>
+                                        <?php if (!empty($b['ServicePackage'])): ?>
+                                            <br><span style="font-size: 0.84rem; color: #16a085;">Package: <?= htmlspecialchars($b['ServicePackage']) ?></span>
+                                        <?php endif; ?>
+                                        <?php if (!empty($b['OilType'])): ?>
+                                            <br><span style="font-size: 0.84rem; color: #555;">Oil: <?= htmlspecialchars($b['OilType']) ?></span>
+                                        <?php endif; ?>
+                                    </td>
                                     <td>
                                         <?= htmlspecialchars($b['BookingDate']) ?> &mdash; 
                                         <strong><?= date('h:i A', strtotime($b['BookingTime'])) ?></strong>
@@ -82,6 +91,14 @@
                                             </select>
                                             <input type="hidden" name="update_status" value="1">
                                         </form>
+                                    </td>
+                                    <td>
+                                        <?php if (!empty($b['JobID'])): ?>
+                                            <a href="repair_job_details.php?job_id=<?= $b['JobID'] ?>" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">Job #<?= $b['JobID'] ?></a>
+                                            <a href="invoice_view.php?job_id=<?= $b['JobID'] ?>" class="btn btn-teal" style="padding: 4px 8px; font-size: 12px;">Invoice</a>
+                                        <?php else: ?>
+                                            <span style="color: #888; font-size: 12px;">-</span>
+                                        <?php endif; ?>
                                     </td>
                                     <td>
                                         <a href="bookings.php?delete=<?= $b['BookingID'] ?>" 

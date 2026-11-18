@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = trim($_POST['password'] ?? '');
     $role = $_POST['role'] ?? '';
 
-    $allowedRoles = ['Administrator', 'Receptionist', 'Mechanic'];
+    $allowedRoles = ['Administrator', 'Service Agent', 'Technician'];
 
     if (!empty($name) && !empty($email) && !empty($password) && in_array($role, $allowedRoles)) {
         $checkStmt = $pdo->prepare("SELECT StaffID FROM Staff WHERE Email = ?");

@@ -41,8 +41,10 @@
                         <div class="job-card">
                             <div class="job-info">
                                 <strong>Job #<?= htmlspecialchars($job['JobID']) ?></strong> &mdash; 
+                                <strong><?= htmlspecialchars(formatServiceSummary($job['ServiceType'], $job['ServicePackage'], $job['OilType'])) ?></strong> &mdash; 
                                 <?= htmlspecialchars($job['Make'] . ' ' . $job['Model']) ?> [<?= htmlspecialchars($job['VehicleType'] ?? 'Sedan') ?>] (<?= htmlspecialchars($job['PlateNumber']) ?>) &mdash; 
-                                Mechanic: <?= htmlspecialchars($job['MechanicName'] ?? 'Unassigned') ?>
+                                Customer: <?= htmlspecialchars($job['CustomerName']) ?> &mdash; 
+                                Technician: <?= htmlspecialchars($job['TechnicianName'] ?? 'Unassigned') ?>
                             </div>
 
                             <div class="job-meta">
@@ -54,6 +56,8 @@
                                 <span class="badge-status <?= $statusClass ?>">
                                     <?= htmlspecialchars($job['Status']) ?>
                                 </span>
+
+                                <a href="repair_job_details.php?job_id=<?= $job['JobID'] ?>" class="btn btn-secondary" style="padding: 4px 10px; font-size: 13px;">Details</a>
 
                                 <?php if (!empty($job['InvoiceID'])): ?>
                                     <a href="invoice_view.php?invoice_id=<?= $job['InvoiceID'] ?>" class="btn btn-teal" style="padding: 4px 10px; font-size: 13px;">View Invoice</a>

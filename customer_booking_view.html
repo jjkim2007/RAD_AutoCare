@@ -19,7 +19,7 @@
         </aside>
 
         <main class="main-content">
-            <div class="card-box" style="max-width: 900px; margin-bottom: 24px;">
+            <div class="card-box" style="max-width: 950px; margin-bottom: 24px;">
                 <h2>Book a Service Appointment</h2>
                 <br>
 
@@ -54,10 +54,32 @@
 
                         <div class="form-group">
                             <label>Service Type:</label>
-                            <select name="service_type" required>
+                            <select name="service_type" class="js-service-type" required>
                                 <option value="">-- Choose Service --</option>
                                 <?php foreach ($serviceOptions as $opt): ?>
                                     <option value="<?= htmlspecialchars($opt) ?>"><?= htmlspecialchars($opt) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <!-- Major Service Package Option (10k / 100k) -->
+                        <div class="form-group js-major-package-group" style="display: none; background: #eef7f5; padding: 12px; border-left: 4px solid #16a085; border-radius: 4px;">
+                            <label>Major Service Mileage Option:</label>
+                            <select name="service_package" class="js-major-package-select">
+                                <option value="">-- Select Mileage Package --</option>
+                                <?php foreach ($majorServicePackages as $pkg): ?>
+                                    <option value="<?= htmlspecialchars($pkg) ?>"><?= htmlspecialchars($pkg) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <!-- Engine Oil Type (Semi / Fully Synthetic) -->
+                        <div class="form-group">
+                            <label>Engine Oil Type (Optional / If Applicable):</label>
+                            <select name="oil_type">
+                                <option value="">-- Not Applicable / Workshop Standard --</option>
+                                <?php foreach ($oilTypes as $oil): ?>
+                                    <option value="<?= htmlspecialchars($oil) ?>"><?= htmlspecialchars($oil) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -77,7 +99,6 @@
                             </select>
                         </div>
 
-                        <!-- Terms & Conditions -->
                         <div class="form-group" style="background: #f8f9fa; padding: 12px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 0.9rem;">
                             <strong>Terms &amp; Conditions (T&amp;C):</strong>
                             <ul style="margin: 6px 0 10px 18px; color: #555; line-height: 1.4;">
@@ -96,8 +117,7 @@
                 <?php endif; ?>
             </div>
 
-            <!-- Booking History Card -->
-            <div class="card-box" style="max-width: 900px;">
+            <div class="card-box" style="max-width: 950px;">
                 <h2>My Service Bookings</h2>
                 <p style="font-size: 0.9rem; color: #666; margin: 6px 0 14px;">
                     * Under our T&amp;C, bookings can only be cancelled at least <strong>24 hours before</strong> the scheduled appointment.
@@ -108,9 +128,9 @@
                         <tr>
                             <th>ID</th>
                             <th>Vehicle</th>
-                            <th>Type</th>
-                            <th>Service</th>
+                            <th>Service Details</th>
                             <th>Date &amp; Time</th>
+                            <th>Repair Job</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>
@@ -127,10 +147,18 @@
                                 ?>
                                 <tr>
                                     <td>#<?= htmlspecialchars($b['BookingID']) ?></td>
-                                    <td><strong><?= htmlspecialchars($b['PlateNumber']) ?></strong> &mdash; <?= htmlspecialchars($b['Make'] . ' ' . $b['Model']) ?></td>
-                                    <td><?= htmlspecialchars($b['VehicleType'] ?? 'Sedan') ?></td>
-                                    <td><?= htmlspecialchars($b['ServiceType']) ?></td>
+                                    <td><strong><?= htmlspecialchars($b['PlateNumber']) ?></strong> &mdash; <?= htmlspecialchars($b['Make'] . ' ' . $b['Model']) ?> [<?= htmlspecialchars($b['VehicleType'] ?? 'Sedan') ?>]</td>
+                                    <td>
+                                        <strong><?= htmlspecialchars($b['ServiceType']) ?></strong>
+                                        <?php if (!empty($b['ServicePackage'])): ?>
+                                            <br><span style="font-size: 0.85rem; color: #16a085;">Package: <?= htmlspecialchars($b['ServicePackage']) ?></span>
+                                        <?php endif; ?>
+                                        <?php if (!empty($b['OilType'])): ?>
+                                            <br><span style="font-size: 0.85rem; color: #555;">Oil: <?= htmlspecialchars($b['OilType']) ?></span>
+                                        <?php endif; ?>
+                                    </td>
                                     <td><?= htmlspecialchars($b['BookingDate']) ?> at <?= date('h:i A', $apptTs) ?></td>
+                                    <td><?= !empty($b['JobID']) ? 'Job #' . htmlspecialchars($b['JobID']) : '-' ?></td>
                                     <td><strong><?= htmlspecialchars($b['Status']) ?></strong></td>
                                     <td>
                                         <?php if ($b['Status'] === 'Cancelled'): ?>

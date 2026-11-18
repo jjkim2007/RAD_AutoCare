@@ -1,6 +1,7 @@
 <?php
 require_once 'auth_check.php';
 require_once 'dbConnect.php';
+require_once 'service_helper.php';
 
 $error = '';
 
@@ -34,18 +35,20 @@ if (isset($_POST['update_status'])) {
     $bookingId = (int)$_POST['booking_id'];
     $newStatus = $_POST['status'] ?? '';
 
-    if ($newStatus === 'Cancelled') {
-        $bStmt = $pdo->prepare("SELECT BookingDate, BookingTime FROM Booking WHERE BookingID = ?");
-        $bStmt->execute([$bookingId]);
-        $bk = $bStmt->fetch();
+    $bStmt = $pdo->prepare("SELECT BookingDate, BookingTime, ServiceType, ServicePackage, OilType FROM Booking WHERE BookingID = ?");
+    $bStmt->execute([$bookingId]);
+    $bk = $bStmt->fetch();
 
-        if ($bk) {
+    if ($bk) {
+        if ($newStatus === 'Cancelled') {
             $apptTs = strtotime($bk['BookingDate'] . ' ' . $bk['BookingTime']);
             $hoursDiff = ($apptTs - time()) / 3600;
             if ($hoursDiff < 24) {
                 header("Location: bookings.php?err=cancel_24h");
                 exit();
             }
+        } elseif ($newStatus === 'Confirmed' || $newStatus === 'Pending') {
+            ensureRepairJobAndInvoice($pdo, $bookingId, $bk['ServiceType'], $bk['ServicePackage'], $bk['OilType']);
         }
     }
 
@@ -55,11 +58,14 @@ if (isset($_POST['update_status'])) {
     exit();
 }
 
-$sql = "SELECT b.BookingID, b.ServiceType, b.BookingDate, b.BookingTime, b.Status, 
-               v.PlateNumber, v.Make, v.Model, v.VehicleType, c.FullName 
+$sql = "SELECT b.BookingID, b.ServiceType, b.ServicePackage, b.OilType, b.BookingDate, b.BookingTime, b.Status, 
+               v.PlateNumber, v.Make, v.Model, v.VehicleType, c.FullName,
+               r.JobID, inv.InvoiceID
         FROM Booking b
         JOIN Vehicle v ON b.VehicleID = v.VehicleID
         JOIN Customer c ON v.CustomerID = c.CustomerID
+        LEFT JOIN RepairJob r ON b.BookingID = r.BookingID
+        LEFT JOIN Invoice inv ON r.JobID = inv.JobID
         ORDER BY b.BookingDate DESC, b.BookingTime DESC";
 $bookings = $pdo->query($sql)->fetchAll();
 
