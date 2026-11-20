@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($customer && ($customer['Status'] ?? 'Active') === 'Inactive') {
             $error = "This customer account is marked as Inactive. Please contact the workshop.";
-        } elseif ($customer && !empty($customer['Password']) && password_verify($password, $customer['Password'])) {
+} elseif ($customer && !empty($customer['Password']) && $password === $customer['Password']) {
             $_SESSION['customer_id'] = $customer['CustomerID'];
             $_SESSION['customer_name'] = $customer['FullName'];
             header("Location: customer_booking.php");

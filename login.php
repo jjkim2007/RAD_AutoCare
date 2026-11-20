@@ -15,8 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$email]);
         $staff = $stmt->fetch();
 
-        if ($staff && password_verify($password, $staff['Password'])) {
-            $_SESSION['staff_id'] = $staff['StaffID'];
+if ($staff && $password === $staff['Password']) {
+        $_SESSION['staff_id'] = $staff['StaffID'];
             $_SESSION['staff_name'] = $staff['Name'];
             $_SESSION['role'] = $staff['Role'];
             header("Location: dashboard.php");

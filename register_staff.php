@@ -24,9 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($checkStmt->fetch()) {
             $error = "This email is already registered.";
         } else {
-            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
             $stmt = $pdo->prepare("INSERT INTO Staff (Name, Email, Password, Role) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$name, $email, $hashedPassword, $role]);
+$stmt->execute([$name, $email, $password, $role]);
 
             $success = "Staff account for {$name} ({$role}) registered successfully!";
         }
